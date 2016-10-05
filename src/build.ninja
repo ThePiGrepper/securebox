@@ -1,0 +1,71 @@
+#project specific variables
+#external libraries
+stlib = ../../STM32F4_StdPeriph_Lib
+project_name = sample_project
+
+#ninja make configuration
+builddir = ../obj
+tool = arm-none-eabi-gcc
+cflags = -mcpu=cortex-m4 -mlittle-endian -mthumb
+deflst = -DSTM32F401xx -DUSE_STDPERIPH_DRIVER
+incdir =  -I./ $
+          -I./include $
+          -I$stlib/CMSIS/Core $
+          -I$stlib/CMSIS/Device $
+          -I$stlib/STM32F4xx_StdPeriph_Driver/inc $
+
+cscript = -T../../linker_scripts/stm32f401re.ld
+
+rule OBJCOPY
+  command = arm-none-eabi-objcopy -Oihex $in $out && arm-none-eabi-size $in
+  description = Creating $out hexfile
+
+rule CC
+  depfile = $out.d
+  deps = gcc
+  command = $tool -MMD -MF $out.d  -g -Os -Wall -fdata-sections -ffunction-sections $cflags $incdir $deflst -c $in -o $out
+  description = Compiling $in
+
+rule CLINK
+  command = $tool -g $cflags $deflst $cscript -Wl,--gc-sections $in -o $out
+  description = Linking $out
+
+build $builddir/main.o: CC main.c
+build $builddir/stm32f4xx_it.o: CC stm32f4xx_it.c
+build $builddir/system_stm32f4xx.o: CC system_stm32f4xx.c
+#build $builddir/system_stm32f4xx.o: CC $stlib/CMSIS/Device/system_stm32f4xx.c
+build $builddir/startup_stm32f401xx.o: CC $stlib/CMSIS/Device/startup/gcc_ride7/startup_stm32f401xx.s
+build $builddir/misc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/misc.c
+build $builddir/stm32f4xx_exti.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_exti.c
+build $builddir/stm32f4xx_flash.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_flash.c
+build $builddir/stm32f4xx_rcc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rcc.c
+build $builddir/stm32f4xx_gpio.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_gpio.c
+#build $builddir/stm32f4xx_dac.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dac.c
+#build $builddir/stm32f4xx_rtc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_rtc.c
+#build $builddir/stm32f4xx_adc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_adc.c
+#build $builddir/stm32f4xx_dbgmcu.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c
+#build $builddir/stm32f4xx_sdio.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
+#build $builddir/stm32f4xx_can.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c
+#build $builddir/stm32f4xx_spi.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
+#build $builddir/stm32f4xx_crc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c
+#build $builddir/stm32f4xx_dma.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c
+#build $builddir/stm32f4xx_i2c.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c
+#build $builddir/stm32f4xx_iwdg.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_iwdg.c
+#build $builddir/stm32f4xx_tim.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_tim.c
+#build $builddir/stm32f4xx_pwr.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_pwr.c
+#build $builddir/stm32f4xx_usart.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_usart.c
+#build $builddir/stm32f4xx_fsmc.o: CC $stm32f10x_pwr/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_fsmc.c
+#build $builddir/stm32f4xx_wwdg.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c
+
+build $builddir/$project_name.elf: CLINK $builddir/main.o $
+                                      $builddir/stm32f4xx_it.o $
+                                      $builddir/system_stm32f4xx.o $
+                                      $builddir/startup_stm32f401xx.o $
+                                      $builddir/misc.o $
+                                      $builddir/stm32f4xx_exti.o $
+                                      $builddir/stm32f4xx_flash.o $
+                                      $builddir/stm32f4xx_rcc.o $
+                                      $builddir/stm32f4xx_gpio.o
+
+build $builddir/$project_name.hex: OBJCOPY $builddir/$project_name.elf
+default $builddir/$project_name.hex
