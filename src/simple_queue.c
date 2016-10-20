@@ -51,3 +51,16 @@ int ringBufPop32(ringBuf32_t *q, uint32_t *data){
   q->tail = next;
   return 0;
 }
+
+int ringBufSPop32(ringBuf32_t *q, uint32_t *data){
+  int next = q->tail + 1;
+  if(next >= q->maxlen)
+    next=0;
+  //ring buffer empty
+  if(q->head == next)
+    return -1;  //error
+  q->tail = next;
+  *data = q->buf[next];
+  q->buf[next] = 0; //optional
+  return 0;
+}
