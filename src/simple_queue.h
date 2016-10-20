@@ -9,9 +9,19 @@ typedef struct
   int head;
   int tail;
   const int maxlen;
-} ringBug_t;
+} ringBuf_t;
 
-int ringBufPush(ringBug_t *q, uint8_t data);
-int ringBufPop(ringBug_t *q, uint8_t *data);
+typedef struct
+{
+  uint32_t * const buf;
+  int head;
+  int tail;
+  const int maxlen;
+} ringBuf32_t;
+
+int ringBufPush(ringBuf_t *q, uint8_t data);
+int ringBufPop(ringBuf_t *q, uint8_t *data);
+int ringBufPush32(ringBuf32_t *q, uint32_t data);
+int ringBufPop32(ringBuf32_t *q, uint32_t *data);
 
 #endif /* __SIMPLE_QUEUE_H */
