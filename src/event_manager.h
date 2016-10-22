@@ -12,7 +12,7 @@ typedef enum {
 
 #define EM_QUEUE_SIZE 50
 
-int EM_setup(void);
+int32_t EM_setup(void);
 int32_t EM_getEvent(event_type *type);
 int32_t EM_setEvent(event_type type);
 

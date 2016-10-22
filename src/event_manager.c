@@ -17,7 +17,7 @@ static int32_t get_id(void){
   return event_ID++;
 }
 
-int EM_setup(void){
+int32_t EM_setup(void){
   return 0;
 }
 
