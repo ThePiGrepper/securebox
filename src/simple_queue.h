@@ -21,8 +21,11 @@ typedef struct
 
 int ringBufPush(ringBuf_t *q, uint8_t data);
 int ringBufPop(ringBuf_t *q, uint8_t *data);
+int ringBufDelete(ringBuf_t *q);
+
 int ringBufPush32(ringBuf32_t *q, uint32_t data);
 int ringBufPop32(ringBuf32_t *q, uint32_t *data);
 int ringBufSPop32(ringBuf32_t *q, uint32_t *data);
+int ringBufDelete32(ringBuf32_t *q);
 
 #endif /* __SIMPLE_QUEUE_H */

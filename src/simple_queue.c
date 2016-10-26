@@ -26,6 +26,13 @@ int ringBufPop(ringBuf_t *q, uint8_t *data){
   return 0;
 }
 
+int ringBufDelete(ringBuf_t *q){
+  if(q->head == q->tail)
+    return -1; //empty
+  q->head = (q->head)? q->head - 1 : q->maxlen - 1;
+  return 0;
+}
+
 /* Functions for 32-bit data */
 int ringBufPush32(ringBuf32_t *q, uint32_t data){
   int next = q->head + 1;
@@ -62,5 +69,12 @@ int ringBufSPop32(ringBuf32_t *q, uint32_t *data){
   q->tail = next;
   *data = q->buf[next];
   q->buf[next] = 0; //optional
+  return 0;
+}
+
+int ringBufDelete32(ringBuf32_t *q){
+  if(q->head == q->tail)
+    return -1; //empty
+  q->head = (q->head)? q->head - 1 : q->maxlen - 1;
   return 0;
 }
