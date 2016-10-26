@@ -1,0 +1,20 @@
+
+#genericDrv:
+genericDrvIN_write(): 
+  - if GDRV_BUFOUT_SZ < GDRV_BUFIN_SZ, it is possible to saturate GDRV_BUFOUT_SZ
+    before GDRV_BUFIN_SZ. If it happens, genericDrvIN_write() will fill the input
+    buffer with data and wont be able to retrieve it or cancel the operation using
+    the ringBuffer existing API. 
+    Solution: expand the ringBuffer API to support buffer checks(maybe an additional
+    parameter or a whole new function).
+
+#simple_queue:
+  - delete function and SPop():
+    - if delete() is implemented, and the current buffer uses SPop(), it wont work,
+      and data will not be secure.
+      Solution: implement a SDelete() for cases when SPop() is used, and a regular
+      delete().
+  - thread safety with soft head:
+    - implement a soft head pointer to make soft writes to the queue and a function
+      to pass the value of soft head to hard head. this last operation is atomic in
+      nature. It will work as long as there is only ONE input source.
