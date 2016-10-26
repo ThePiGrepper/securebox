@@ -1,5 +1,6 @@
 #include "genericDrv.h"
 #include "simple_queue.h"
+#include "event_manager.h"
 
 static uint8_t dinBuf[GDRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,GDRV_BUFIN_SZ};
@@ -46,6 +47,7 @@ int32_t genericDrvIN_write(uint8_t data){
       poolCount = 0;
     currStr = dinBuf + dinBufCtrl.head;
     currLen = 0;
+    if(EM_setEvent(generic_e) < 0) return -3; //event queue full
   }
   else
   {

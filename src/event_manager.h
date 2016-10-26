@@ -6,8 +6,8 @@
 //application specific
 //write the events used by program
 typedef enum {
-  generic,
-  sysclk
+  generic_e,
+  sysclk_e
 } event_type;
 
 #define EM_QUEUE_SIZE 50

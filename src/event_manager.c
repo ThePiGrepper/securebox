@@ -38,7 +38,8 @@ int32_t EM_setEvent(event_type type){
     return -1;
   }
   int32_t id=get_id();
-  event_pool[poolCount++]={id,type};
+  event_pool[poolCount].id = id;
+  event_pool[poolCount++].type = type;
   if(poolCount>=EM_QUEUE_SIZE)
     poolCount=0;
   return id;
