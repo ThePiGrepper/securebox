@@ -1,0 +1,61 @@
+ESP8266 Notes:
+
+Pins:
+Reset == GPIO16
+Program == GPIO0
+
+Modes:
+User Mode:
+  Program = 1
+  rise(Reset)
+Boot Mode:
+  Program = 0
+  rise(Reset)
+
+*Loaded image using following Pin setup:
+GPIO0 = 0
+GPIO2 = 1 (?)
+GPIO16 = rise
+CH_PD = 1
+TXD = PC_RX
+RXD = PC_TX
+
+*Pin Setup for user mode:
+GPIO0 = 1
+GPIO2 = dont care
+GPIO16 = rise
+CH_PD = 1 (?)
+TXD = PC_RX
+RXD = PC_TX
+
+ESP8266 programming tool:
+Use esptool.py (go to repo README for details) on Boot mode.
+Usage:
+  esptool.py -p <port> -b <baudRate> <command> 
+
+Example:
+  esptool.py -p /dev/ttyACM0 -b 115200 write_flash 0x00000 ~/file.bin
+
+Other useful commands:
+chip_id : show IC uid.
+flash_id : show Flash type (check memory brand and size using code)
+
+NodeMCU:
+
+- Download or create a build and use esptool to load the image onto the esp8266 board.
+  * https://nodemcu-build.com/
+- Start address: 0x0
+
+Can create builds online using a remote server.
+* The default build created works @115200.
+useful commands:
+node.restart()//restarts module
+file.format() //formats memory
+file.fsinfo() //returns memory stats
+uart.setup(0, 9600, 8, uart.PARITY_NONE, uart.STOPBITS_1, 1)
+gpio.mode(4, gpio.OUTPUT) //configs GPIO
+gpio.write(4, pin.LOW) //sets/clear pin //pin4 is GPIO2 on ESP-01
+gpio.read(4) //read value of pin
+
+To load lua scripts on the ESP8266:
+  - Use ESPlorer. Java (7 or 8) is needed.
