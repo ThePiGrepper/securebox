@@ -1,0 +1,75 @@
+#ifndef __SETTINGS_H
+#define __SETTINGS_H
+#include "stm32f4xx.h"
+
+//Hardware configuration
+
+//GPRS
+#define GPRS_GPIO_CLK RCC_AHB1Periph_GPIOA
+#define GPRS_MODULE_CLK_SETUP RCC_APB1PeriphClockCmd
+#define GPRS_MODULE_CLK RCC_APB1Periph_USART2
+
+#define GPRS_TX_PIN GPIO_Pin_2
+#define GPRS_RX_PIN GPIO_Pin_3
+#define GPRS_PORT GPIOA
+#define GPRS_TX_PINSOURCE GPIO_PinSource2
+#define GPRS_RX_PINSOURCE GPIO_PinSource3
+
+#define GPRS_MODULE USART2
+#define GPRS_MODULE_AF GPIO_AF_USART2
+#define GPRS_IRQ USART2_IRQn
+#define GPRS_TX_IT USART_IT_TC
+#define GPRS_RX_IT USART_IT_RXNE
+
+//GPS
+#define GPS_GPIO_CLK RCC_AHB1Periph_GPIOC
+#define GPS_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
+#define GPS_MODULE_CLK RCC_APB2Periph_USART6
+
+#define GPS_TX_PIN GPIO_Pin_6
+#define GPS_RX_PIN GPIO_Pin_7
+#define GPS_PORT GPIOC
+#define GPS_TX_PINSOURCE GPIO_PinSource6
+#define GPS_RX_PINSOURCE GPIO_PinSource7
+
+#define GPS_MODULE USART6
+#define GPS_MODULE_AF GPIO_AF_USART6
+#define GPS_IRQ USART6_IRQn
+#define GPS_TX_IT USART_IT_TC
+#define GPS_RX_IT USART_IT_RXNE
+
+////GPS
+//#define GPS_GPIO_CLK RCC_AHB1Periph_GPIOA
+//#define GPS_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
+//#define GPS_MODULE_CLK RCC_APB2Periph_USART1
+//
+//#define GPS_TX_PIN GPIO_Pin_9
+//#define GPS_RX_PIN GPIO_Pin_10
+//#define GPS_PORT GPIOA
+//#define GPS_TX_PINSOURCE GPIO_PinSource9
+//#define GPS_RX_PINSOURCE GPIO_PinSource10
+//
+//#define GPS_MODULE USART1
+//#define GPS_MODULE_AF GPIO_AF_USART1
+//#define GPS_IRQ USART1_IRQn
+//#define GPS_TX_IT USART_IT_TC
+//#define GPS_RX_IT USART_IT_RXNE
+
+//WIFI
+#define WIFI_GPIO_CLK RCC_AHB1Periph_GPIOC
+#define WIFI_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
+#define WIFI_MODULE_CLK RCC_APB2Periph_USART6
+
+#define WIFI_TX_PIN GPIO_Pin_6
+#define WIFI_RX_PIN GPIO_Pin_7
+#define WIFI_PORT GPIOC
+#define WIFI_TX_PINSOURCE GPIO_PinSource6
+#define WIFI_RX_PINSOURCE GPIO_PinSource7
+
+#define WIFI_MODULE USART6
+#define WIFI_MODULE_AF GPIO_AF_USART6
+#define WIFI_IRQ USART6_IRQn
+#define WIFI_TX_IT USART_IT_TC
+#define WIFI_RX_IT USART_IT_RXNE
+
+#endif /* __SETTINGS_H */
