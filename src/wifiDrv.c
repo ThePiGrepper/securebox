@@ -63,7 +63,7 @@ int32_t wifiDrvIN_write(uint8_t data){
       return -2; //OUT buffer full
     }
     doutPool[poolCount].str = currStr;
-    doutPool[poolCount++].len = ++currLen;
+    doutPool[poolCount++].len = currLen;
     if(poolCount >= WIFIDRV_BUFOUT_SZ)
       poolCount = 0;
     currStr = dinBuf + dinBufCtrl.head;
