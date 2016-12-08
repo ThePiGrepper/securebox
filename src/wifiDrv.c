@@ -8,12 +8,12 @@ static ringBuf_t dinBufCtrl = {dinBuf,0,0,WIFIDRV_BUFIN_SZ};
 static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)WIFIDRV_BUFIN_SZ;
 
 static wifiDrvIN_frame doutPool[WIFIDRV_BUFOUT_SZ]={0};
-static uint32_t doutBuf[WIFIDRV_BUFOUT_SZ];
+static uint32_t doutBuf[WIFIDRV_BUFOUT_SZ]={0};
 static uint32_t poolCount=0;
 static ringBuf32_t doutBufCtrl = {doutBuf,0,WIFIDRV_BUFOUT_SZ-1,WIFIDRV_BUFOUT_SZ};
 
 static uint32_t currLen=0;
-static uint8_t *currStr=dinBuf;
+static int currStr=0;
 
 static wifiStatus curr_status;
 
@@ -28,16 +28,16 @@ static int32_t getINBufFreeSpace(void)
 void wifiParse(uint8_t data){
 }
 
-int32_t wifiDrvIN_read(wifiDrvIN_frame **addr){
+int32_t wifiDrvIN_read(uint8_t **ptr){
   uint32_t count;
-  //release dinBuf
-  uint8_t *str = doutPool[doutBufCtrl.tail].str;
+  int str = doutPool[doutBuf[doutBufCtrl.tail]].str;
   uint32_t len = doutPool[doutBuf[doutBufCtrl.tail]].len;
-  dinBufCtrl.tail = (((uint32_t)str + len - dinBufNext + 1) >= 0)?
-    (uint32_t)str + len - dinBufNext + 1 : (uint32_t)str + len - (uint32_t)dinBuf + 1;
   if(ringBufSPop32(&doutBufCtrl,&count)) return -1; //OUT buffer empty
-  *addr = (wifiDrvIN_frame *) &doutPool[count];
-  return 0;
+  //release dinBuf
+  dinBufCtrl.tail = ((str + (int)len + 1 - WIFIDRV_BUFIN_SZ) >= 0)?
+    str + len + 1 - WIFIDRV_BUFIN_SZ : str + len + 1;
+  *ptr = &dinBuf[doutPool[count].str];
+  return doutPool[count].len;
 }
 
 //frame specification:
@@ -52,13 +52,13 @@ int32_t wifiDrvIN_read(wifiDrvIN_frame **addr){
 int32_t wifiDrvIN_write(uint8_t data){
   if(ringBufPush(&dinBufCtrl,data)) return -1; //IN buffer full
   //writes out of boundary to enable regular string manipulation
-  if((uint32_t)(currStr + currLen) >= dinBufNext)
-    dinBuf[(int)(currStr-dinBuf) + currLen] = data;
+  if((currStr + currLen) >= WIFIDRV_BUFIN_SZ)
+    dinBuf[currStr + currLen] = data;
   if(data == '\n') //send frame to buffer
   {
     if(ringBufPush32(&doutBufCtrl,poolCount))
     {
-      dinBufCtrl.head = currStr-dinBuf; //flush incomplete frame
+      dinBufCtrl.head = currStr; //flush incomplete frame
       currLen = 0;
       return -2; //OUT buffer full
     }
@@ -66,7 +66,7 @@ int32_t wifiDrvIN_write(uint8_t data){
     doutPool[poolCount++].len = currLen;
     if(poolCount >= WIFIDRV_BUFOUT_SZ)
       poolCount = 0;
-    currStr = dinBuf + dinBufCtrl.head;
+    currStr = dinBufCtrl.head;
     currLen = 0;
     if(EM_setEvent(wifi_e) < 0) return -3; //event queue full
   }
@@ -78,8 +78,12 @@ int32_t wifiDrvIN_write(uint8_t data){
   return getINBufFreeSpace();
 }
 
-#ifdef STM32F401xx
 void wifiDrv_Setup(void){
+  /* buffers startup values */
+  doutBuf[WIFIDRV_BUFOUT_SZ-1] = WIFIDRV_BUFOUT_SZ-1;
+  doutPool[WIFIDRV_BUFOUT_SZ-1].str = WIFIDRV_BUFIN_SZ-1;
+  doutPool[WIFIDRV_BUFOUT_SZ-1].len = 0;
+#ifdef STM32F401xx
   GPIO_InitTypeDef GPIO_InitStructure;
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -120,8 +124,10 @@ void wifiDrv_Setup(void){
 
   //Set wifi status
   wifiSetStatus(wifi_disabled);
+#endif
 }
 
+#ifdef STM32F401xx
 int32_t wifiSetStatus(wifiStatus status){
   switch(status)
   {
@@ -143,6 +149,7 @@ int32_t wifiSetStatus(wifiStatus status){
     //default:
   }
   curr_status = status;
+  return status;
 }
 
 wifiStatus wifiGetStatus(void){
@@ -163,5 +170,17 @@ int32_t wifiDrvOUT_write(uint8_t data){
   while(SET != USART_GetFlagStatus(WIFI_MODULE, USART_FLAG_TC));
   USART_SendData(WIFI_MODULE,data);
   return 0;
+}
+#endif
+
+#ifdef DEBUG
+#include <stdio.h>
+int32_t wifiDumpBuffer(uint32_t first, uint32_t last){
+  int i = 0;
+  printf("DinBuffer Ctrl: Head:%d,Tail:%d,size:%d\n",dinBufCtrl.head,dinBufCtrl.tail,dinBufCtrl.maxlen);
+  if(first<(dinBufCtrl.maxlen - last))
+    for(int i=first;i<(dinBufCtrl.maxlen-last);i++)
+      printf("Buf[%d]:%d(%c)\n",i,dinBufCtrl.buf[i],dinBufCtrl.buf[i]);
+  return i;
 }
 #endif
