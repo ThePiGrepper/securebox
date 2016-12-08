@@ -68,7 +68,6 @@ int ringBufSPop32(ringBuf32_t *q, uint32_t *data){
     return -1;  //error
   q->tail = next;
   *data = q->buf[next];
-  q->buf[next] = 0; //optional
   return 0;
 }
 
