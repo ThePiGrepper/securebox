@@ -7,7 +7,9 @@
 //write the events used by program
 typedef enum {
   generic_e,
-  sysclk_e
+  gps_e,
+  gprs_e,
+  wifi_e,
 } event_type;
 
 #define EM_QUEUE_SIZE 50
