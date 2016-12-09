@@ -26,6 +26,7 @@ static int32_t getINBufFreeSpace(void)
 }
 
 void wifiParse(uint8_t data){
+  wifiDrvIN_write(data);
 }
 
 int32_t wifiDrvIN_read(uint8_t **ptr){
@@ -84,6 +85,7 @@ void wifiDrv_Setup(void){
   doutPool[WIFIDRV_BUFOUT_SZ-1].str = WIFIDRV_BUFIN_SZ-1;
   doutPool[WIFIDRV_BUFOUT_SZ-1].len = 0;
 #ifdef STM32F401xx
+  /* Hardware setup */
   GPIO_InitTypeDef GPIO_InitStructure;
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -123,7 +125,7 @@ void wifiDrv_Setup(void){
   USART_Cmd(WIFI_MODULE, ENABLE);
 
   //Set wifi status
-  wifiSetStatus(wifi_disabled);
+  //wifiSetStatus(wifi_disabled);
 #endif
 }
 
@@ -132,19 +134,28 @@ int32_t wifiSetStatus(wifiStatus status){
   switch(status)
   {
     case wifi_disabled:
+      wifiDrvOUT_puts("\r\n",0);
+      for(uint32_t i=0;i<100000000;i++);
+      wifiDrvOUT_puts("=node.restart()\r\n",0);
+      for(uint32_t i=0;i<100000000;i++);
+      break;
+    case wifi_disabled_hard:
       WIFI_MODE_USER;
       WIFI_RST_ON; //0v
       for(int i=0;i<100000;i++);
       WIFI_RST_OFF; //3v3
       break;
     case wifi_setup:
-      wifiDrvOUT_puts("=node.restart()\r\n");
-      //wifiDrvOUT_puts("=file.fsinfo()\r\n");
-      wifiDrvOUT_puts("do(\"setup.lua\")\r\n");
+      wifiDrvOUT_puts("=node.restart()\r\n",0);
+      for(uint32_t i=0;i<100000000;i++);
+      //wifiDrvOUT_puts("=file.fsinfo()\r\n",0);
+      wifiDrvOUT_puts("do(\"setup.lua\")\r\n",0);
+      break;
     case wifi_auth:
-      wifiDrvOUT_puts("=node.restart()\r\n");
-      //wifiDrvOUT_puts("=file.fsinfo()\r\n");
-      wifiDrvOUT_puts("do(\"auth.lua\")\r\n");
+      wifiDrvOUT_puts("=node.restart()\r\n",0);
+      for(uint32_t i=0;i<100000000;i++);
+      //wifiDrvOUT_puts("=file.fsinfo()\r\n",0);
+      wifiDrvOUT_puts("do(\"auth.lua\")\r\n",0);
       break;
     //default:
   }
@@ -156,11 +167,12 @@ wifiStatus wifiGetStatus(void){
   return curr_status;
 }
 //returns number of bytes sent
-int32_t wifiDrvOUT_puts(char *str){
+int32_t wifiDrvOUT_puts(char *str,char ch){
   uint32_t i=0;
-  while(*(str+i) != 0)
+  while(*(str+i) != ch)
   {
     wifiDrvOUT_write(*(str+i));
+    gprsDrvOUT_write(*(str+i));
     i++;
   }
   return i;
