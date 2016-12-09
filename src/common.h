@@ -3,6 +3,7 @@
 
 #include "gprsDrv.h"
 #include "gpsDrv.h"
+#include "wifiDrv.h"
 #include "genericDrv.h"
 #include "stm32f4xx.h"
 
@@ -11,5 +12,6 @@
 
 //Functions
 void HW_setup(void);
+void proto_main(void);
 
 #endif /* __COMMON_H */
