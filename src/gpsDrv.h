@@ -3,7 +3,7 @@
 #include <stdint.h>
 
 typedef struct {
-  uint8_t *str;
+  int str;
   uint32_t len;
 } gpsDrvIN_frame;
 
@@ -11,7 +11,7 @@ typedef struct {
 #define GPSDRV_BUFOUT_SZ 1000
 
 void gpsParse(uint8_t data);
-int32_t gpsDrvIN_read(gpsDrvIN_frame **addr);
+int32_t gpsDrvIN_read(uint8_t **ptr);
 int32_t gpsDrvIN_write(uint8_t data);
 void gpsDrv_Setup(void);
 

@@ -8,12 +8,12 @@ static ringBuf_t dinBufCtrl = {dinBuf,0,0,GPSDRV_BUFIN_SZ};
 static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)GPSDRV_BUFIN_SZ;
 
 static gpsDrvIN_frame doutPool[GPSDRV_BUFOUT_SZ]={0};
-static uint32_t doutBuf[GPSDRV_BUFOUT_SZ];
+static uint32_t doutBuf[GPSDRV_BUFOUT_SZ]={0};
 static uint32_t poolCount=0;
 static ringBuf32_t doutBufCtrl = {doutBuf,0,GPSDRV_BUFOUT_SZ-1,GPSDRV_BUFOUT_SZ};
 
 static uint32_t currLen=0;
-static uint8_t *currStr=dinBuf;
+static int currStr=0;
 
 /*Function Implementations */
 
@@ -102,28 +102,28 @@ void gpsParse(uint8_t data){
   }
 }
 
-int32_t gpsDrvIN_read(gpsDrvIN_frame **addr){
+int32_t gpsDrvIN_read(uint8_t **ptr){
   uint32_t count;
-  //release dinBuf
-  uint8_t *str = doutPool[doutBufCtrl.tail].str;
+  int str = doutPool[doutBuf[doutBufCtrl.tail]].str;
   uint32_t len = doutPool[doutBuf[doutBufCtrl.tail]].len;
-  dinBufCtrl.tail = (((uint32_t)str + len - dinBufNext + 1) >= 0)?
-    (uint32_t)str + len - dinBufNext + 1 : (uint32_t)str + len - (uint32_t)dinBuf + 1;
   if(ringBufSPop32(&doutBufCtrl,&count)) return -1; //OUT buffer empty
-  *addr = (gpsDrvIN_frame *) &doutPool[count];
-  return 0;
+  //release dinBuf
+  dinBufCtrl.tail = ((str + (int)len + 1 - GPSDRV_BUFIN_SZ) >= 0)?
+    str + len + 1 - GPSDRV_BUFIN_SZ : str + len + 1;
+  *ptr = &dinBuf[doutPool[count].str];
+  return doutPool[count].len;
 }
 
 int32_t gpsDrvIN_write(uint8_t data){
   if(ringBufPush(&dinBufCtrl,data)) return -1; //IN buffer full
   //writes out of boundary to enable regular string manipulation
-  if((uint32_t)(currStr + currLen) >= dinBufNext)
-    dinBuf[(int)(currStr-dinBuf) + currLen] = data;
-  if(data == 0) //send frame to buffer
+  if((currStr + currLen) >= GPSDRV_BUFIN_SZ)
+    dinBuf[currStr + currLen] = data;
+  if(data == '\n') //send frame to buffer
   {
     if(ringBufPush32(&doutBufCtrl,poolCount))
     {
-      dinBufCtrl.head = currStr-dinBuf; //flush incomplete frame
+      dinBufCtrl.head = currStr; //flush incomplete frame
       currLen = 0;
       return -2; //OUT buffer full
     }
@@ -131,7 +131,7 @@ int32_t gpsDrvIN_write(uint8_t data){
     doutPool[poolCount++].len = currLen;
     if(poolCount >= GPSDRV_BUFOUT_SZ)
       poolCount = 0;
-    currStr = dinBuf + dinBufCtrl.head;
+    currStr = dinBufCtrl.head;
     currLen = 0;
     if(EM_setEvent(gps_e) < 0) return -3; //event queue full
   }
@@ -144,6 +144,11 @@ int32_t gpsDrvIN_write(uint8_t data){
 }
 
 void gpsDrv_Setup(void){
+  /* buffers startup values */
+  doutBuf[GPSDRV_BUFOUT_SZ-1] = GPSDRV_BUFOUT_SZ-1;
+  doutPool[GPSDRV_BUFOUT_SZ-1].str = GPSDRV_BUFIN_SZ-1;
+  doutPool[GPSDRV_BUFOUT_SZ-1].len = 0;
+  /* Hardware setup */
   GPIO_InitTypeDef GPIO_InitStructure;
   USART_InitTypeDef USART_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
