@@ -40,67 +40,84 @@ static uint8_t charCounter = 0;
  
 static char tempBuf[50];
 void gpsParse(uint8_t data){
-  parseStatus = nextStatus;
-  switch(parseStatus)
+  //match GPRMC
+  if(cmdCounter<CMD_SIZE)
   {
-    case CMD:
-      if(cmd[cmdCounter] == data)
-      {
-        if(++cmdCounter >= CMD_SIZE)
-          nextStatus = PARAM;
-      }
-      else
-      {
-        cmdCounter = 0;
-      }
-      break;
-    case PARAM:
-      //count parameters.test data validity.save param 0,2,3,4,5
-      switch(paramCounter)
-      {
-        case 0: //date
-          if(data == ',')
-            paramCounter++;
-          else
-            tempBuf[charCounter++] = data;
-          break;
-        case 1: //valid check
-          switch(data)
-          {
-            case 'A':
-              for(uint8_t i = 0; i < charCounter;i++)
-                gpsDrvIN_write(tempBuf[i]);
-              gpsDrvIN_write(',');
-              break;
-            case ',':
-              paramCounter++;
-            default: //reset
-              charCounter = 0;
-              paramCounter = 0;
-              cmdCounter = 0;
-              nextStatus = CMD;
-          }
-          break;
-        default:
-          //save next 4 parameters and send directly
-          if(data == ',')
-            paramCounter++;
-          if(paramCounter < 6)
-          {
-            gpsDrvIN_write(data);
-          }
-          else
-          {
-            gpsDrvIN_write(0);
-            //reset
-            charCounter = 0;
-            paramCounter = 0;
-            cmdCounter = 0;
-            nextStatus = CMD;
-          }
-      }
+    if(cmd[cmdCounter++] != data)
+      cmdCounter=0;
+  }
+  else //eat the rest up to \r\n
+  {
+    gpsDrvIN_write(data);
+    if(data == '\n')
+    {
+      cmdCounter=0;
+    }
   }
 }
+
+//void gpsParse(uint8_t data){
+//  parseStatus = nextStatus;
+//  switch(parseStatus)
+//  {
+//    case CMD:
+//      if(cmd[cmdCounter] == data)
+//      {
+//        if(++cmdCounter >= CMD_SIZE)
+//          nextStatus = PARAM;
+//      }
+//      else
+//      {
+//        cmdCounter = 0;
+//      }
+//      break;
+//    case PARAM:
+//      //count parameters.test data validity.save param 0,2,3,4,5
+//      switch(paramCounter)
+//      {
+//        case 0: //date
+//          if(data == ',')
+//            paramCounter++;
+//          else
+//            tempBuf[charCounter++] = data;
+//          break;
+//        case 1: //valid check
+//          switch(data)
+//          {
+//            case 'A':
+//              for(uint8_t i = 0; i < charCounter;i++)
+//                gpsDrvIN_write(tempBuf[i]);
+//              gpsDrvIN_write(',');
+//              break;
+//            case ',':
+//              paramCounter++;
+//            default: //reset
+//              charCounter = 0;
+//              paramCounter = 0;
+//              cmdCounter = 0;
+//              nextStatus = CMD;
+//          }
+//          break;
+//        default:
+//          //save next 4 parameters and send directly
+//          if(data == ',')
+//            paramCounter++;
+//          if(paramCounter < 6)
+//          {
+//            gpsDrvIN_write(data);
+//          }
+//          else
+//          {
+//            gpsDrvIN_write(0);
+//            //reset
+//            charCounter = 0;
+//            paramCounter = 0;
+//            cmdCounter = 0;
+//            nextStatus = CMD;
+//          }
+//      }
+//  }
+//}
 
 int32_t gpsDrvIN_read(uint8_t **ptr){
   uint32_t count;
