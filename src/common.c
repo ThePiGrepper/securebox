@@ -1,6 +1,70 @@
 #include "common.h"
 #include "event_manager.h"
 #include "settings.h"
+#include <stdio.h>
+#include <string.h>
+
+void gprsSendCoord(char *str){
+   char outstr[50];
+   const char s[] = ",";
+   char *token;
+   char time[15];
+   char ilat[15];
+   char *dlat;
+   char ilon[15];
+   char *dlon;
+   char slat[2]={0,0};
+   char slon[2]={0,0};
+   int val1;
+   int val2;
+   unsigned char i=0;
+   char *ptr;
+   /* get the first token */
+   token = strtok(str, s);
+   /* walk through other tokens */
+   while( token != NULL )
+   {
+      switch(i)
+      {
+        case 0: //time
+               strcpy(time,token);
+               time[6]=0;
+               break;
+        case 2:
+               strcpy(ilat,token);
+               ptr=strchr(ilat,'.');
+               *ptr=*(ptr-1);
+               *(ptr-1)=*(ptr-2);
+               *(ptr-2)=0;
+               dlat=ptr-1;
+               break;
+        case 3:
+               if('S'==token[0])
+                 slat[0]='-';
+               break;
+        case 4:
+               strcpy(ilon,token);
+               ptr=strchr(ilon,'.');
+               *ptr=*(ptr-1);
+               *(ptr-1)=*(ptr-2);
+               *(ptr-2)=0;
+               dlon=ptr-1;
+               break;
+        case 5:
+               if('W'==token[0])
+                 slon[0]='-';
+               break;
+      }
+      i++;
+     token = strtok(NULL, s);
+  }
+  val1=strtol(dlat,NULL,10)/60;
+  val2=strtol(dlon,NULL,10)/60;
+  sprintf(outstr,"lat=%s%s.%d&lon=%s%s.%d", slat,ilat,val1,slon,ilon,val2);
+  //sprintf(outstr,"time:%s, lon:%s%s.%d,lat:%s%s.%d\n", time,slat,ilat,val1,slon,ilon,val2);
+  gprsDrvOUT_puts(outstr,0);
+  return(0);
+}
 
 static void common_Setup(void){
   GPIO_InitTypeDef GPIO_InitStructure;
@@ -25,11 +89,18 @@ void HW_setup(void){
 #endif
   /* Configure one bit for preemption priority */
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-  //gprsDrv_Setup();
-  //gpsDrv_Setup();
+  gprsDrv_Setup();
+  gpsDrv_Setup();
   wifiDrv_Setup();
   common_Setup();
+  LOCK_ON;
+  //for(uint32_t i=0;i<100000;i++);
+  int i=0;
+  for(;i<1000000;i++);
   LOCK_OFF;
+  GPIOA->BSRRH = GPIO_Pin_5;
+  for(;i<1000000;i++);
+  LOCK_ON;
 }
 
 typedef enum { status_opened,status_locked } lockStatus;
@@ -49,7 +120,46 @@ void proto_main(void){
   lockStatus nextStatus = status_opened;
   //set to status_opened
   HW_setup();
-  wifiSetStatus(wifi_setup);
+  //wifiSetStatus(wifi_setup);
+  //gprsDrvOUT_puts("this is a test",0);
+  uint8_t *streamPtr;
+  //gprsDrvOUT_puts("testing..",0);
+  while(1)
+  {
+    char *ptr;
+    int32_t event_id = EM_getEvent(&currEvent);
+    if(event_id != -1)
+    {
+      switch(currEvent)
+      {
+        case wifi_e:
+          wifiDrvIN_read(&streamPtr);
+          gprsDrvOUT_write('+');
+          gprsDrvOUT_puts(streamPtr,'\n');
+          gprsDrvOUT_write('\n');
+          break;
+        case gprs_e:
+          gprsDrvIN_read(&streamPtr);
+          LOCK_OFF;
+          //wifiDrvOUT_puts(streamPtr,'\n');
+          //wifiDrvOUT_write('\n');
+          break;
+        case gps_e:
+          gpsDrvIN_read(&streamPtr);
+          if(strchr(streamPtr,'V') == NULL)
+          {
+            *strchr(streamPtr,'\r')=0;
+            gprsSendCoord(streamPtr);
+            //gprsDrvOUT_puts(streamPtr,'\n');
+            //gprsDrvOUT_write('\n');
+          }
+          break;
+        default:
+          gprsDrvOUT_write('+');
+          gprsDrvOUT_puts("oops\n",0);
+      }
+    }
+  }
   //status_opened
   while(1)
   {
