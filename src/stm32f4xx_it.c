@@ -29,6 +29,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "common.h"
+#include "settings.h"
+#include "simple_queue.h"
+
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -169,6 +173,37 @@ void SysTick_Handler(void)
 /**
   * @}
   */
+void WIFI_IRQHandler(void)
+{
+  if(USART_GetITStatus(WIFI_MODULE, WIFI_RX_IT))
+  {
+    uint8_t rxdata = (uint8_t) USART_ReceiveData(WIFI_MODULE);
+//    gprsDrvOUT_write(rxdata);
+    wifiParse(rxdata);
+  }
+}
 
+void GPS_IRQHandler(void)
+{
+  if(USART_GetITStatus(GPS_MODULE, GPS_RX_IT))
+  {
+    uint8_t rxdata = (uint8_t) USART_ReceiveData(GPS_MODULE);
+    //gprsDrvOUT_write(rxdata);
+    gpsParse(rxdata);
+  }
+}
+
+void GPRS_IRQHandler(void)
+{
+  if(USART_GetITStatus(GPRS_MODULE, GPRS_RX_IT))
+  {
+    uint8_t rxdata = (uint8_t) USART_ReceiveData(GPRS_MODULE);
+//    gprsDrvOUT_write(rxdata);
+    //gprsParse(rxdata);
+    LOCK_OFF;
+    gprsDrvOUT_write("*");
+    //USART_ClearITPendingBit(USART2,USART_IT_RXNE);
+  }
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
