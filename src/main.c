@@ -21,6 +21,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
+#include "event_manager.h"
+#include "common.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -50,32 +54,21 @@ int main(void)
        To reconfigure the default setting of SystemInit() function, refer to
        system_stm32f10x.c file
      */
-  GPIO_InitTypeDef GPIO_InitStructure;
-  /* GPIOA Periph clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-
-  /* Configure PA5 in output pushpull mode */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_InitStructure.GPIO_Speed =GPIO_Medium_Speed;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-
+  proto_main();
   /* To achieve GPIO toggling maximum frequency, the following  sequence is mandatory.
      You can monitor PA5 on the scope to measure the output signal.
      If you need to fine tune this frequency, you can add more GPIO set/reset
      cycles to minimize more the infinite loop timing.
      This code needs to be compiled with high speed optimization option.  */
-  while (1)
-  {
-    volatile int i;
-    /* Set PA5 */
-    GPIOA->BSRRL = 0x0020;
-    for(i=1000000;i>0;i--);
-    /* Reset PA5 */
-    GPIOA->BSRRH  = 0x0020;
-    for(i=1000000;i>0;i--);
-  }
+  //  HW_setup();
+  //  volatile int i;
+  //  /* Set PA5 */
+  //  GPIOA->BSRRL = 0x0020;
+  //  for(i=1000000;i>0;i--);
+  //  /* Reset PA5 */
+  //  GPIOA->BSRRH  = 0x0020;
+  //  for(i=1000000;i>0;i--);
+  //}
 }
 
 #ifdef  USE_FULL_ASSERT
