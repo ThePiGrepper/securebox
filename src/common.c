@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+char outstr[100];
 void gprsSendCoord(char *str){
-   char outstr[50];
    const char s[] = ",";
    char *token;
    char time[15];
@@ -62,8 +62,8 @@ void gprsSendCoord(char *str){
   val2=strtol(dlon,NULL,10)/60;
   sprintf(outstr,"lat=%s%s.%d&lon=%s%s.%d", slat,ilat,val1,slon,ilon,val2);
   //sprintf(outstr,"time:%s, lon:%s%s.%d,lat:%s%s.%d\n", time,slat,ilat,val1,slon,ilon,val2);
-  gprsDrvOUT_puts(outstr,0);
-  return(0);
+  //gprsDrvOUT_puts(outstr,0);
+  //return(0);
 }
 
 static void common_Setup(void){
@@ -95,11 +95,11 @@ void HW_setup(void){
   common_Setup();
   LOCK_ON;
   //for(uint32_t i=0;i<100000;i++);
-  int i=0;
-  for(;i<1000000;i++);
+  int i;
+  for(i=0;i<1000000;i++);
   LOCK_OFF;
   GPIOA->BSRRH = GPIO_Pin_5;
-  for(;i<1000000;i++);
+  for(i=0;i<1000000;i++);
   LOCK_ON;
 }
 
@@ -140,7 +140,7 @@ void proto_main(void){
           break;
         case gprs_e:
           gprsDrvIN_read(&streamPtr);
-          LOCK_OFF;
+          //LOCK_OFF;
           //wifiDrvOUT_puts(streamPtr,'\n');
           //wifiDrvOUT_write('\n');
           break;
@@ -150,6 +150,9 @@ void proto_main(void){
           {
             *strchr(streamPtr,'\r')=0;
             gprsSendCoord(streamPtr);
+            gprsDrv_SendData(outstr);
+            //wifiDrvOUT_puts(outstr,0);
+            //wifiDrvOUT_write('\n');
             //gprsDrvOUT_puts(streamPtr,'\n');
             //gprsDrvOUT_write('\n');
           }
