@@ -78,7 +78,7 @@ void gprsDrv_Init(void){
 void gprsDrv_SendData(const char *pkg){
   char str[200];
   //lat=-12.52&long=-76.589
-  gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
+  gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"entel.pe\"\r\n",0);
   sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas1.php?%s\"\r\n",pkg);
   gprsDrvOUT_puts(str,0);
   gprsDrvOUT_puts("AT+HTTPACTION=0\r\n",0);
@@ -108,17 +108,17 @@ void gprsDrv_Setup(void){
   GPIO_PinAFConfig(GPRS_PORT,GPRS_RX_PINSOURCE,GPRS_MODULE_AF);
 
   USART_StructInit(&USART_InitStructure);
-  USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_BaudRate = 9600;
   USART_Init(GPRS_MODULE,&USART_InitStructure);
 
   /* Configure GPRS interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = GPRS_IRQ; 
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  USART_ITConfig(GPRS_MODULE, GPRS_RX_IT, ENABLE);
-  //USART_ITConfig(GPRS_MODULE, GPRS_TX_IT, ENABLE);
+  //NVIC_InitStructure.NVIC_IRQChannel = GPRS_IRQ;
+  //NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  //NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  //NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  //NVIC_Init(&NVIC_InitStructure);
+  //USART_ITConfig(GPRS_MODULE, GPRS_RX_IT, ENABLE);
+  ////USART_ITConfig(GPRS_MODULE, GPRS_TX_IT, ENABLE);
   USART_Cmd(GPRS_MODULE, ENABLE);
   gprsDrv_Init();
 }
