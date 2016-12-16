@@ -12,6 +12,8 @@
 
 //Functions
 void HW_setup(void);
+void Delay(volatile uint32_t nTime);
+void TimingDelay_Decrement(void);
 void proto_main(void);
 
 #endif /* __COMMON_H */

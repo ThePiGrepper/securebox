@@ -77,6 +77,13 @@ static void common_Setup(void){
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	/* Systick Configuration */
+  if (SysTick_Config(SystemCoreClock / 5000))
+  {
+    while(1);
+  }
+
 }
 
 void HW_setup(void){
@@ -95,12 +102,36 @@ void HW_setup(void){
   common_Setup();
   LOCK_ON;
   //for(uint32_t i=0;i<100000;i++);
-  int i;
-  for(i=0;i<1000000;i++);
+  //int i;
+  //for(i=0;i<1000000;i++);
+  Delay(1000);
   LOCK_OFF;
-  GPIOA->BSRRH = GPIO_Pin_5;
-  for(i=0;i<1000000;i++);
+  //for(i=0;i<1000000;i++);
+  Delay(1000);
   LOCK_ON;
+}
+
+static volatile uint32_t TimingDelay;
+/**
+  * @brief  Inserts a delay time.
+  * @param  nTime: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
+void Delay(volatile uint32_t nTime){
+  TimingDelay = nTime;
+  while(TimingDelay != 0);
+}
+
+/**
+  * @brief  Decrements the TimingDelay variable.
+  * @param  None
+  * @retval None
+  */
+void TimingDelay_Decrement(void){
+  if (TimingDelay != 0)
+  {
+    TimingDelay--;
+  }
 }
 
 typedef enum { status_opened,status_locked } lockStatus;
