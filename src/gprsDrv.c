@@ -70,7 +70,7 @@ int32_t gprsDrvIN_write(uint8_t data){
 
 #include <stdio.h>
 void gprsDrv_Init(void){
-  //gprsDrvOUT_puts("AT+SAPBR = 3,1,\"CONNTYPE\",\"GPRS\"\r\n",0);
+  //gprsDrvOUT_puts("AT+SAPBR = 3,1,\"CONTYPE\",\"GPRS\"\r\n",0);
   gprsDrvOUT_puts("AT+SAPBR = 1,1\r\n",0);
   gprsDrvOUT_puts("AT+HTTPINIT\r\n",0);
 }
