@@ -194,15 +194,20 @@ void GPS_IRQHandler(void)
   }
 }
 
+extern volatile msgPipe gprsPipe;
 void GPRS_IRQHandler(void)
 {
   if(USART_GetITStatus(GPRS_MODULE, GPRS_RX_IT))
   {
     uint8_t rxdata = (uint8_t) USART_ReceiveData(GPRS_MODULE);
+    if(gprsPipe.enabled == 1)
+    {
+      gprsPipe.sent = 1;
+    }
 //    gprsDrvOUT_write(rxdata);
     //gprsParse(rxdata);
-    LOCK_OFF;
-    gprsDrvOUT_write("*");
+    //LOCK_OFF;
+    //gprsDrvOUT_write("*");
     //USART_ClearITPendingBit(USART2,USART_IT_RXNE);
   }
 }

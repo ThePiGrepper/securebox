@@ -96,10 +96,10 @@ void HW_setup(void){
 #endif
   /* Configure one bit for preemption priority */
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+  common_Setup();
   gprsDrv_Setup();
   gpsDrv_Setup();
   wifiDrv_Setup();
-  common_Setup();
   LOCK_ON;
   //for(uint32_t i=0;i<100000;i++);
   //int i;
@@ -132,6 +132,22 @@ void TimingDelay_Decrement(void){
   {
     TimingDelay--;
   }
+}
+
+volatile msgPipe gprsPipe={0,0,0};
+void waitforit(int32_t timeout){
+  gprsPipe.enabled=1;
+  TimingDelay=timeout;
+  while(TimingDelay > 0)
+  {
+    if(gprsPipe.sent == 1)
+    {
+      TimingDelay=timeout;
+      gprsPipe.sent = 0;
+    }
+  }
+  gprsPipe.sent = 0;
+  gprsPipe.enabled=0;
 }
 
 typedef enum { status_opened,status_locked } lockStatus;

@@ -68,20 +68,27 @@ int32_t gprsDrvIN_write(uint8_t data){
   return getINBufFreeSpace();
 }
 
+#define TIMEOUT 300
 #include <stdio.h>
 void gprsDrv_Init(void){
+  waitforit(TIMEOUT);
   //gprsDrvOUT_puts("AT+SAPBR = 3,1,\"CONTYPE\",\"GPRS\"\r\n",0);
   gprsDrvOUT_puts("AT+SAPBR = 1,1\r\n",0);
+  waitforit(TIMEOUT);
   gprsDrvOUT_puts("AT+HTTPINIT\r\n",0);
 }
 
 void gprsDrv_SendData(const char *pkg){
   char str[200];
   //lat=-12.52&long=-76.589
+  waitforit(TIMEOUT);
   gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"entel.pe\"\r\n",0);
+  waitforit(TIMEOUT);
   sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas1.php?%s\"\r\n",pkg);
   gprsDrvOUT_puts(str,0);
+  waitforit(TIMEOUT);
   gprsDrvOUT_puts("AT+HTTPACTION=0\r\n",0);
+  waitforit(TIMEOUT);
 }
 
 void gprsDrv_Setup(void){
@@ -112,13 +119,13 @@ void gprsDrv_Setup(void){
   USART_Init(GPRS_MODULE,&USART_InitStructure);
 
   /* Configure GPRS interrupt */
-  //NVIC_InitStructure.NVIC_IRQChannel = GPRS_IRQ;
-  //NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  //NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  //NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  //NVIC_Init(&NVIC_InitStructure);
-  //USART_ITConfig(GPRS_MODULE, GPRS_RX_IT, ENABLE);
-  ////USART_ITConfig(GPRS_MODULE, GPRS_TX_IT, ENABLE);
+  NVIC_InitStructure.NVIC_IRQChannel = GPRS_IRQ;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  USART_ITConfig(GPRS_MODULE, GPRS_RX_IT, ENABLE);
+  //USART_ITConfig(GPRS_MODULE, GPRS_TX_IT, ENABLE);
   USART_Cmd(GPRS_MODULE, ENABLE);
   gprsDrv_Init();
 }
