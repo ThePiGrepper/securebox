@@ -115,12 +115,12 @@ void wifiDrv_Setup(void){
   USART_Init(WIFI_MODULE,&USART_InitStructure);
 
   /* Configure WIFI interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = WIFI_IRQ; 
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-  USART_ITConfig(WIFI_MODULE, WIFI_RX_IT, ENABLE);
+//  NVIC_InitStructure.NVIC_IRQChannel = WIFI_IRQ;
+//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//  NVIC_Init(&NVIC_InitStructure);
+//  USART_ITConfig(WIFI_MODULE, WIFI_RX_IT, ENABLE);
   //USART_ITConfig(WIFI_MODULE, WIFI_TX_IT, ENABLE);
   USART_Cmd(WIFI_MODULE, ENABLE);
 
@@ -172,7 +172,6 @@ int32_t wifiDrvOUT_puts(char *str,char ch){
   while(*(str+i) != ch)
   {
     wifiDrvOUT_write(*(str+i));
-    gprsDrvOUT_write(*(str+i));
     i++;
   }
   return i;

@@ -188,7 +188,7 @@ void gpsDrv_Setup(void){
   USART_Init(GPS_MODULE,&USART_InitStructure);
 
   /* Configure GPS interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = GPS_IRQ; 
+  NVIC_InitStructure.NVIC_IRQChannel = GPS_IRQ;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
