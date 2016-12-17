@@ -60,7 +60,7 @@ void gprsSendCoord(char *str){
   }
   val1=strtol(dlat,NULL,10)/60;
   val2=strtol(dlon,NULL,10)/60;
-  sprintf(outstr,"lat=%s%s.%d&lon=%s%s.%d", slat,ilat,val1,slon,ilon,val2);
+  sprintf(outstr,"lat=%s%s.%d&long=%s%s.%d", slat,ilat,val1,slon,ilon,val2);
   //sprintf(outstr,"time:%s, lon:%s%s.%d,lat:%s%s.%d\n", time,slat,ilat,val1,slon,ilon,val2);
   //gprsDrvOUT_puts(outstr,0);
   //return(0);
