@@ -76,13 +76,16 @@ void gprsDrv_Init(void){
   gprsDrvOUT_puts("AT+SAPBR = 1,1\r\n",0);
   waitforit(TIMEOUT);
   gprsDrvOUT_puts("AT+HTTPINIT\r\n",0);
+  waitforit(TIMEOUT);
+  gprsDrvOUT_puts("ATE0\r\n",0);
 }
 
 void gprsDrv_SendData(const char *pkg){
   char str[200];
   //lat=-12.52&long=-76.589
   waitforit(TIMEOUT);
-  gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"entel.pe\"\r\n",0);
+  gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
+  wifiDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
   waitforit(TIMEOUT);
   sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas1.php?%s\"\r\n",pkg);
   gprsDrvOUT_puts(str,0);
