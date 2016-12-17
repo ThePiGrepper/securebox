@@ -205,8 +205,8 @@ void proto_main(void){
           }
           break;
         default:
-          gprsDrvOUT_write('+');
-          gprsDrvOUT_puts("oops\n",0);
+          wifiDrvOUT_write('+');
+          wifiDrvOUT_puts("oops\n",0);
       }
     }
   }

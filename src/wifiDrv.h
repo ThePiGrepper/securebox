@@ -7,8 +7,8 @@ typedef struct {
   uint32_t len;
 } wifiDrvIN_frame;
 
-#define WIFIDRV_BUFIN_SZ 500
-#define WIFIDRV_BUFOUT_SZ 400
+#define WIFIDRV_BUFIN_SZ 2000
+#define WIFIDRV_BUFOUT_SZ 1000
 
 #define WIFI_RST_ON GPIO_SetBits(WIFI_PORT2, WIFI_RST_PIN)
 #define WIFI_RST_OFF GPIO_ResetBits(WIFI_PORT2, WIFI_RST_PIN)
