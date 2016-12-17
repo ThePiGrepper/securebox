@@ -7,8 +7,8 @@ typedef struct {
   uint32_t len;
 } gpsDrvIN_frame;
 
-#define GPSDRV_BUFIN_SZ 1000
-#define GPSDRV_BUFOUT_SZ 1000
+#define GPSDRV_BUFIN_SZ 7000
+#define GPSDRV_BUFOUT_SZ 4000
 
 void gpsParse(uint8_t data);
 int32_t gpsDrvIN_read(uint8_t **ptr);
