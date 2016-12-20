@@ -23,7 +23,7 @@ rule OBJCOPY
 rule CC
   depfile = $out.d
   deps = gcc
-  command = $tool -MMD -MF $out.d  -g -O2 -Wall -fdata-sections -ffunction-sections $cflags $incdir $deflst -c $in -o $out
+  command = $tool -MMD -MF $out.d  -g -O2 -std=c11 -Wall -fdata-sections -ffunction-sections $cflags $incdir $deflst -c $in -o $out
   description = Compiling $in
 
 rule CLINK
