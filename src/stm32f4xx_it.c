@@ -212,4 +212,15 @@ void GPRS_IRQHandler(void)
   }
 }
 
+void RPI_IRQHandler(void)
+{
+  if (SPI_I2S_GetITStatus(RPI_MODULE, RPI_RX_IT) == SET)
+  {
+      uint8_t rxdata = SPI_I2S_ReceiveData(RPI_MODULE);
+      rpiParse(rxdata);
+      //rpiDrvIN_write(rxdata);
+      //SPI_I2S_ITConfig(SPIx, SPI_I2S_IT_RXNE, DISABLE);
+  }
+}
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

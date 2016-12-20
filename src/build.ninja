@@ -36,6 +36,7 @@ build $builddir/genericDrv.o: CC genericDrv.c
 build $builddir/gprsDrv.o: CC gprsDrv.c
 build $builddir/gpsDrv.o: CC gpsDrv.c
 build $builddir/wifiDrv.o: CC wifiDrv.c
+build $builddir/rpiDrv.o: CC rpiDrv.c
 build $builddir/common.o: CC common.c
 build $builddir/event_manager.o: CC event_manager.c
 build $builddir/retarget.o: CC retarget.c
@@ -54,7 +55,7 @@ build $builddir/stm32f4xx_gpio.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32
 #build $builddir/stm32f4xx_dbgmcu.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dbgmcu.c
 #build $builddir/stm32f4xx_sdio.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_sdio.c
 #build $builddir/stm32f4xx_can.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_can.c
-#build $builddir/stm32f4xx_spi.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
+build $builddir/stm32f4xx_spi.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_spi.c
 #build $builddir/stm32f4xx_crc.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_crc.c
 #build $builddir/stm32f4xx_dma.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_dma.c
 #build $builddir/stm32f4xx_i2c.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_i2c.c
@@ -71,6 +72,7 @@ build $builddir/$project_name.elf: CLINK $builddir/main.o $
                                       $builddir/gprsDrv.o $
                                       $builddir/gpsDrv.o $
                                       $builddir/wifiDrv.o $
+                                      $builddir/rpiDrv.o $
                                       $builddir/common.o $
                                       $builddir/event_manager.o $
                                       $builddir/retarget.o $
@@ -82,7 +84,8 @@ build $builddir/$project_name.elf: CLINK $builddir/main.o $
                                       $builddir/stm32f4xx_flash.o $
                                       $builddir/stm32f4xx_rcc.o $
                                       $builddir/stm32f4xx_gpio.o $
-                                      $builddir/stm32f4xx_usart.o
+                                      $builddir/stm32f4xx_usart.o $
+                                      $builddir/stm32f4xx_spi.o
 
 build $builddir/$project_name.hex: OBJCOPY $builddir/$project_name.elf
 default $builddir/$project_name.hex

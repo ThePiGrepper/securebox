@@ -100,6 +100,7 @@ void HW_setup(void){
   gprsDrv_Setup();
   gpsDrv_Setup();
   wifiDrv_Setup();
+  rpiDrv_Setup();
   LOCK_ON;
   //for(uint32_t i=0;i<100000;i++);
   //int i;
@@ -203,6 +204,9 @@ void proto_main(void){
             //gprsDrvOUT_puts(streamPtr,'\n');
             //gprsDrvOUT_write('\n');
           }
+          break;
+        case rpi_e:
+          rpiDrvIN_read(&streamPtr);
           break;
         default:
           wifiDrvOUT_write('+');

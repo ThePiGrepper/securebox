@@ -63,5 +63,27 @@
 #define GPRS_RX_IT USART_IT_RXNE
 #define GPRS_IRQHandler USART1_IRQHandler
 
+//RPI
+#define RPI_GPIO_CLK RCC_AHB1Periph_GPIOA
+#define RPI_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
+#define RPI_MODULE_CLK RCC_APB2Periph_SPI1
+
+#define RPI_NSS_PIN GPIO_Pin_4
+#define RPI_SCK_PIN GPIO_Pin_5
+#define RPI_MISO_PIN GPIO_Pin_6
+#define RPI_MOSI_PIN GPIO_Pin_7
+#define RPI_PORT GPIOA
+#define RPI_NSS_PINSOURCE GPIO_PinSource4
+#define RPI_SCK_PINSOURCE GPIO_PinSource5
+#define RPI_MISO_PINSOURCE GPIO_PinSource6
+#define RPI_MOSI_PINSOURCE GPIO_PinSource7
+
+#define RPI_MODULE SPI1
+#define RPI_MODULE_AF GPIO_AF_SPI1
+#define RPI_IRQ SPI1_IRQn
+#define RPI_TX_IT SPI_I2S_IT_TXE
+#define RPI_RX_IT SPI_I2S_IT_RXNE
+#define RPI_IRQHandler SPI1_IRQHandler
+
 #endif
 #endif /* __SETTINGS_H */

@@ -4,6 +4,7 @@
 #include "gprsDrv.h"
 #include "gpsDrv.h"
 #include "wifiDrv.h"
+#include "rpiDrv.h"
 #include "genericDrv.h"
 #include "stm32f4xx.h"
 
