@@ -83,6 +83,7 @@ static void common_Setup(void){
   {
     while(1);
   }
+  NVIC_SetPriority(SysTick_IRQn, 0x0);
 
 }
 
