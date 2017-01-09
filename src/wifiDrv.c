@@ -5,7 +5,6 @@
 
 static uint8_t dinBuf[WIFIDRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,WIFIDRV_BUFIN_SZ};
-static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)WIFIDRV_BUFIN_SZ;
 
 static wifiDrvIN_frame doutPool[WIFIDRV_BUFOUT_SZ]={0};
 static uint32_t doutBuf[WIFIDRV_BUFOUT_SZ]={0};

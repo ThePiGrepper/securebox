@@ -5,7 +5,6 @@
 
 static uint8_t dinBuf[GPSDRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,GPSDRV_BUFIN_SZ};
-static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)GPSDRV_BUFIN_SZ;
 
 static gpsDrvIN_frame doutPool[GPSDRV_BUFOUT_SZ]={0};
 static uint32_t doutBuf[GPSDRV_BUFOUT_SZ]={0};
@@ -23,22 +22,13 @@ static int32_t getINBufFreeSpace(void)
     dinBufCtrl.tail-dinBufCtrl.head-1:GPSDRV_BUFIN_SZ+(dinBufCtrl.tail-dinBufCtrl.head)-1;
 }
 
-typedef enum{
-  CMD,
-  PARAM
-} gpsParseStatus;
-static gpsParseStatus parseStatus=CMD;
-static gpsParseStatus nextStatus=CMD;
 static const uint8_t cmd[]="$GPRMC,";
 static uint8_t cmdCounter = 0;
-static uint8_t paramCounter = 0;
-static uint8_t charCounter = 0;
 #define CMD_SIZE 7
+
 //parse gps data stream.
 //gets data from GPRMC data
 //sends to buffer only
- 
-static char tempBuf[50];
 void gpsParse(uint8_t data){
   //match GPRMC
   if(cmdCounter<CMD_SIZE)
@@ -55,69 +45,6 @@ void gpsParse(uint8_t data){
     }
   }
 }
-
-//void gpsParse(uint8_t data){
-//  parseStatus = nextStatus;
-//  switch(parseStatus)
-//  {
-//    case CMD:
-//      if(cmd[cmdCounter] == data)
-//      {
-//        if(++cmdCounter >= CMD_SIZE)
-//          nextStatus = PARAM;
-//      }
-//      else
-//      {
-//        cmdCounter = 0;
-//      }
-//      break;
-//    case PARAM:
-//      //count parameters.test data validity.save param 0,2,3,4,5
-//      switch(paramCounter)
-//      {
-//        case 0: //date
-//          if(data == ',')
-//            paramCounter++;
-//          else
-//            tempBuf[charCounter++] = data;
-//          break;
-//        case 1: //valid check
-//          switch(data)
-//          {
-//            case 'A':
-//              for(uint8_t i = 0; i < charCounter;i++)
-//                gpsDrvIN_write(tempBuf[i]);
-//              gpsDrvIN_write(',');
-//              break;
-//            case ',':
-//              paramCounter++;
-//            default: //reset
-//              charCounter = 0;
-//              paramCounter = 0;
-//              cmdCounter = 0;
-//              nextStatus = CMD;
-//          }
-//          break;
-//        default:
-//          //save next 4 parameters and send directly
-//          if(data == ',')
-//            paramCounter++;
-//          if(paramCounter < 6)
-//          {
-//            gpsDrvIN_write(data);
-//          }
-//          else
-//          {
-//            gpsDrvIN_write(0);
-//            //reset
-//            charCounter = 0;
-//            paramCounter = 0;
-//            cmdCounter = 0;
-//            nextStatus = CMD;
-//          }
-//      }
-//  }
-//}
 
 int32_t gpsDrvIN_read(uint8_t **ptr){
   uint32_t count;

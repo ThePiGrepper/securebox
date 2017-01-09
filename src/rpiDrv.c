@@ -5,7 +5,6 @@
 
 static uint8_t dinBuf[RPIDRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,RPIDRV_BUFIN_SZ};
-static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)RPIDRV_BUFIN_SZ;
 
 static rpiDrvIN_frame doutPool[RPIDRV_BUFOUT_SZ]={0};
 static uint32_t doutBuf[RPIDRV_BUFOUT_SZ]={0};
@@ -23,21 +22,9 @@ static int32_t getINBufFreeSpace(void)
     dinBufCtrl.tail-dinBufCtrl.head-1:RPIDRV_BUFIN_SZ+(dinBufCtrl.tail-dinBufCtrl.head)-1;
 }
 
-typedef enum{
-  CMD,
-  PARAM
-} rpiParseStatus;
-static rpiParseStatus parseStatus=CMD;
-static rpiParseStatus nextStatus=CMD;
-static const uint8_t cmd[]="$GPRMC,";
-static uint8_t cmdCounter = 0;
-static uint8_t paramCounter = 0;
-static uint8_t charCounter = 0;
-#define CMD_SIZE 7
 //parse rpi data stream.
 //gets data from GPRMC data
 //sends to buffer only
-
 static uint8_t parse_count = 0;
 void rpiParse(uint8_t data){
   if(parse_count < 2)

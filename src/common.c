@@ -2,6 +2,7 @@
 #include "event_manager.h"
 #include "settings.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 char outstr[100];
@@ -10,9 +11,9 @@ void gprsSendCoord(char *str){
    char *token;
    char time[15];
    char ilat[15];
-   char *dlat;
+   char *dlat=NULL;
    char ilon[15];
-   char *dlon;
+   char *dlon=NULL;
    char slat[2]={0,0};
    char slon[2]={0,0};
    int val1;

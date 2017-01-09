@@ -5,7 +5,6 @@
 
 static uint8_t dinBuf[GPRSDRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,GPRSDRV_BUFIN_SZ};
-static const uint32_t dinBufNext= (uint32_t)dinBuf + (uint32_t)GPRSDRV_BUFIN_SZ;
 
 static gprsDrvIN_frame doutPool[GPRSDRV_BUFOUT_SZ]={0};
 static uint32_t doutBuf[GPRSDRV_BUFOUT_SZ]={0};
