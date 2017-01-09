@@ -97,10 +97,10 @@ void HW_setup(void){
   /* Configure one bit for preemption priority */
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
   common_Setup();
+  rpiDrv_Setup();
+  wifiDrv_Setup();
   gprsDrv_Setup();
   gpsDrv_Setup();
-  wifiDrv_Setup();
-  rpiDrv_Setup();
   LOCK_ON;
   Delay(2500);
   LOCK_OFF;

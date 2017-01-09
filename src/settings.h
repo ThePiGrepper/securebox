@@ -71,26 +71,27 @@
 #define LOCK_PORT GPIOC
 
 //RPI
-#define RPI_GPIO_CLK RCC_AHB1Periph_GPIOA
-#define RPI_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
-#define RPI_MODULE_CLK RCC_APB2Periph_SPI1
+#define RPI_GPIO_CLK RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOC
+#define RPI_MODULE_CLK_SETUP RCC_APB1PeriphClockCmd
+#define RPI_MODULE_CLK RCC_APB1Periph_SPI2
 
-#define RPI_NSS_PIN GPIO_Pin_4
-#define RPI_SCK_PIN GPIO_Pin_5
-#define RPI_MISO_PIN GPIO_Pin_6
-#define RPI_MOSI_PIN GPIO_Pin_7
-#define RPI_PORT GPIOA
-#define RPI_NSS_PINSOURCE GPIO_PinSource4
-#define RPI_SCK_PINSOURCE GPIO_PinSource5
-#define RPI_MISO_PINSOURCE GPIO_PinSource6
-#define RPI_MOSI_PINSOURCE GPIO_PinSource7
+#define RPI_NSS_PIN GPIO_Pin_12
+#define RPI_SCK_PIN GPIO_Pin_10
+#define RPI_MISO_PIN GPIO_Pin_2
+#define RPI_MOSI_PIN GPIO_Pin_3
+#define RPI_PORT GPIOB
+#define RPI_PORT2 GPIOC
+#define RPI_NSS_PINSOURCE GPIO_PinSource12
+#define RPI_SCK_PINSOURCE GPIO_PinSource10
+#define RPI_MISO_PINSOURCE GPIO_PinSource2
+#define RPI_MOSI_PINSOURCE GPIO_PinSource3
 
-#define RPI_MODULE SPI1
-#define RPI_MODULE_AF GPIO_AF_SPI1
-#define RPI_IRQ SPI1_IRQn
+#define RPI_MODULE SPI2
+#define RPI_MODULE_AF GPIO_AF_SPI2
+#define RPI_IRQ SPI2_IRQn
 #define RPI_TX_IT SPI_I2S_IT_TXE
 #define RPI_RX_IT SPI_I2S_IT_RXNE
-#define RPI_IRQHandler SPI1_IRQHandler
+#define RPI_IRQHandler SPI2_IRQHandler
 
 #endif
 #endif /* __SETTINGS_H */
