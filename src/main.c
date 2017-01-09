@@ -21,8 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
-#include "event_manager.h"
-#include "common.h"
+#include "securebox.h"
 #include <stdlib.h>
 #include <stdio.h>
 

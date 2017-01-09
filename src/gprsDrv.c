@@ -1,4 +1,5 @@
 #include "gprsDrv.h"
+#include "common.h"
 #include "settings.h"
 #include "simple_queue.h"
 #include "event_manager.h"

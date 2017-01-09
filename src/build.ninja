@@ -31,6 +31,7 @@ rule CLINK
   description = Linking $out
 
 build $builddir/main.o: CC main.c
+build $builddir/securebox.o: CC securebox.c
 build $builddir/simple_queue.o: CC simple_queue.c
 build $builddir/genericDrv.o: CC genericDrv.c
 build $builddir/gprsDrv.o: CC gprsDrv.c
@@ -67,6 +68,7 @@ build $builddir/stm32f4xx_usart.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm3
 #build $builddir/stm32f4xx_wwdg.o: CC $stlib/STM32F4xx_StdPeriph_Driver/src/stm32f4xx_wwdg.c
 
 build $builddir/$project_name.elf: CLINK $builddir/main.o $
+                                      $builddir/securebox.o $
                                       $builddir/simple_queue.o $
                                       $builddir/genericDrv.o $
                                       $builddir/gprsDrv.o $

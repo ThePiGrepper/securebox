@@ -29,7 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
-#include "common.h"
+#include "securebox.h"
 #include "settings.h"
 #include "simple_queue.h"
 
@@ -206,7 +206,7 @@ void GPRS_IRQHandler(void)
     }
 //    gprsDrvOUT_write(rxdata);
     //gprsParse(rxdata);
-    //LOCK_OFF;
+    //LOCK_OFF();
     //gprsDrvOUT_write("*");
     //USART_ClearITPendingBit(USART2,USART_IT_RXNE);
   }
