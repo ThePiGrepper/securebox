@@ -113,11 +113,15 @@ void gprsDrv_Setup(void){
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(GPRS_PORT, &GPIO_InitStructure);
 
+  GPIO_InitStructure.GPIO_Pin = GPRS_START_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_Init(GPRS_PORT2, &GPIO_InitStructure);
+
   GPIO_PinAFConfig(GPRS_PORT,GPRS_TX_PINSOURCE,GPRS_MODULE_AF);
   GPIO_PinAFConfig(GPRS_PORT,GPRS_RX_PINSOURCE,GPRS_MODULE_AF);
 
   USART_StructInit(&USART_InitStructure);
-  USART_InitStructure.USART_BaudRate = 9600;
+  USART_InitStructure.USART_BaudRate = 115200;
   USART_Init(GPRS_MODULE,&USART_InitStructure);
 
   /* Configure GPRS interrupt */
@@ -129,7 +133,27 @@ void gprsDrv_Setup(void){
   USART_ITConfig(GPRS_MODULE, GPRS_RX_IT, ENABLE);
   //USART_ITConfig(GPRS_MODULE, GPRS_TX_IT, ENABLE);
   USART_Cmd(GPRS_MODULE, ENABLE);
+  gprsSetStatus(ENABLED);
+  Delay(10000);
   gprsDrv_Init();
+}
+
+static gprsStatus currStatus = DISABLED;
+int32_t gprsSetStatus(gprsStatus status){
+  if(status != currStatus)
+  {
+    //execute ON/OFF routine
+    Delay(2000);
+    GPIO_SetBits(GPRS_PORT2, GPRS_START_PIN);
+    Delay(2000);
+    GPIO_ResetBits(GPRS_PORT2, GPRS_START_PIN);
+    currStatus = status;
+  }
+  return status;
+}
+
+gprsStatus gprsGetStatus(void){
+  return currStatus;
 }
 
 int32_t gprsDrvOUT_write(uint8_t data){

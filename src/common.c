@@ -203,8 +203,8 @@ void proto_main(void){
           rpiDrvIN_read(&streamPtr);
           break;
         default:
-          wifiDrvOUT_write('+');
-          wifiDrvOUT_puts("oops\n",0);
+          gpsDrvOUT_write('+');
+          gpsDrvOUT_puts("oops\n",0);
       }
     }
   }
