@@ -69,15 +69,13 @@ void gprsSendCoord(char *str){
 
 static void common_Setup(void){
   GPIO_InitTypeDef GPIO_InitStructure;
-  /* GPIOA Periph clock enable */
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-  /* Configure PA5 in output pushpull mode */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  RCC_AHB1PeriphClockCmd(LOCK_GPIO_CLK, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = LOCK_PIN;
   GPIO_InitStructure.GPIO_Speed =GPIO_Medium_Speed;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
   GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  GPIO_Init(LOCK_PORT, &GPIO_InitStructure);
 
 	/* Systick Configuration */
   if (SysTick_Config(SystemCoreClock / 5000))
@@ -104,14 +102,8 @@ void HW_setup(void){
   wifiDrv_Setup();
   rpiDrv_Setup();
   LOCK_ON;
-  //for(uint32_t i=0;i<100000;i++);
-  //int i;
-  //for(i=0;i<1000000;i++);
-  Delay(1000);
+  Delay(2500);
   LOCK_OFF;
-  //for(i=0;i<1000000;i++);
-  Delay(1000);
-  LOCK_ON;
 }
 
 static volatile uint32_t TimingDelay;

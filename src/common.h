@@ -8,8 +8,8 @@
 #include "genericDrv.h"
 #include "stm32f4xx.h"
 
-#define LOCK_ON GPIO_SetBits(GPIOA, GPIO_Pin_5)
-#define LOCK_OFF GPIO_ResetBits(GPIOA, GPIO_Pin_5)
+#define LOCK_ON GPIO_SetBits(LOCK_PORT, LOCK_PIN)
+#define LOCK_OFF GPIO_ResetBits(LOCK_PORT, LOCK_PIN)
 
 typedef struct{
   unsigned char data;

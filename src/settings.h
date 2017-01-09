@@ -63,6 +63,11 @@
 #define GPRS_RX_IT USART_IT_RXNE
 #define GPRS_IRQHandler USART1_IRQHandler
 
+//LOCK
+#define LOCK_GPIO_CLK RCC_AHB1Periph_GPIOC
+#define LOCK_PIN GPIO_Pin_1
+#define LOCK_PORT GPIOC
+
 //RPI
 #define RPI_GPIO_CLK RCC_AHB1Periph_GPIOA
 #define RPI_MODULE_CLK_SETUP RCC_APB2PeriphClockCmd
