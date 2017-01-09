@@ -94,12 +94,10 @@ void proto_main(void){
   //set to status_opened
   HW_setup();
   //wifiSetStatus(wifi_setup);
-  //gprsDrvOUT_puts("this is a test",0);
   uint8_t *streamPtr;
-  //gprsDrvOUT_puts("testing..",0);
+  //gpsDrvOUT_puts("testing..\n",0);
   while(1)
   {
-    char *ptr;
     int32_t event_id = EM_getEvent(&currEvent);
     if(event_id != -1)
     {
@@ -107,36 +105,31 @@ void proto_main(void){
       {
         case wifi_e:
           wifiDrvIN_read(&streamPtr);
-          gprsDrvOUT_write('+');
-          gprsDrvOUT_puts(streamPtr,'\n');
-          gprsDrvOUT_write('\n');
-          //wifiDrvOUT_puts(streamPtr,'\n');
-          //wifiDrvOUT_write('\n');
+          gpsDrvOUT_write('+');
+          gpsDrvOUT_puts((char *)streamPtr,'\n');
+          gpsDrvOUT_write('\n');
           break;
         case gprs_e:
           gprsDrvIN_read(&streamPtr);
-          //LOCK_OFF();
-          //wifiDrvOUT_puts(streamPtr,'\n');
-          //wifiDrvOUT_write('\n');
+          //gpsDrvOUT_puts((char *)streamPtr,'\n');
+          //gpsDrvOUT_write('\n');
           break;
         case gps_e:
           gpsDrvIN_read(&streamPtr);
-          gpsDrvOUT_puts(streamPtr,'\n');
+          gpsDrvOUT_puts((char *)streamPtr,'\n');
           gpsDrvOUT_write('\n');
-          if(strchr(streamPtr,'V') == NULL)
+          if(strchr((char *)streamPtr,'V') == NULL)
           {
-            *strchr(streamPtr,'\r')=0;
-            gprsSendCoord(streamPtr);
+            *strchr((char *)streamPtr,'\r')=0;
+            gprsSendCoord((char *)streamPtr);
             gprsDrv_SendData(outstr);
             gpsDrvOUT_puts(outstr,0);
             gpsDrvOUT_write('\n');
-            //gprsDrvOUT_puts(streamPtr,'\n');
-            //gprsDrvOUT_write('\n');
           }
           break;
         case rpi_e:
           rpiDrvIN_read(&streamPtr);
-          gpsDrvOUT_puts(streamPtr,'\n');
+          gpsDrvOUT_puts((char *)streamPtr,'\n');
           gpsDrvOUT_write('\n');
           break;
         default:
