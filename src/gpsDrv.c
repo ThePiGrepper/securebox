@@ -87,6 +87,23 @@ int32_t gpsDrvIN_write(uint8_t data){
   return getINBufFreeSpace();
 }
 
+//returns number of bytes sent
+int32_t gpsDrvOUT_puts(char *str,char ch){
+  uint32_t i=0;
+  while(*(str+i) != ch)
+  {
+    gpsDrvOUT_write(*(str+i));
+    i++;
+  }
+  return i;
+}
+
+int32_t gpsDrvOUT_write(uint8_t data){
+  while(SET != USART_GetFlagStatus(GPS_MODULE, USART_FLAG_TC));
+  USART_SendData(GPS_MODULE,data);
+  return 0;
+}
+
 void gpsDrv_Setup(void){
   /* buffers startup values */
   doutBuf[GPSDRV_BUFOUT_SZ-1] = GPSDRV_BUFOUT_SZ-1;
