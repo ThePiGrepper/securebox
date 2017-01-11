@@ -3,8 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-char outstr[100];
-void gprsSendCoord(char *str){
+#define COORDSETSIZE 10
+char outstr[500];
+static int coordLen=0;
+static int coordCnt=0;
+uint8_t gprsSendCoord(char *str){
    const char s[] = ",";
    char *token;
    char time[15];
@@ -18,6 +21,7 @@ void gprsSendCoord(char *str){
    int val2;
    unsigned char i=0;
    char *ptr;
+   char currStr[64];
    /* get the first token */
    token = strtok(str, s);
    /* walk through other tokens */
@@ -59,7 +63,22 @@ void gprsSendCoord(char *str){
   }
   val1=strtol(dlat,NULL,10)/60;
   val2=strtol(dlon,NULL,10)/60;
-  sprintf(outstr,"lat=%s%s.%d&long=%s%s.%d", slat,ilat,val1,slon,ilon,val2);
+  if(coordCnt < (COORDSETSIZE-1))
+    sprintf(currStr,"lat%d=%s%s.%d&long%d=%s%s.%d&", coordCnt,slat,ilat,val1,coordCnt,slon,ilon,val2);
+  else
+    sprintf(currStr,"lat%d=%s%s.%d&long%d=%s%s.%d", coordCnt,slat,ilat,val1,coordCnt,slon,ilon,val2);
+  strcpy(outstr + coordLen, currStr);
+  coordLen+=strlen(currStr);
+  if(++coordCnt >= COORDSETSIZE)
+  {
+    coordCnt=0;
+    coordLen=0;
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
   //sprintf(outstr,"time:%s, lon:%s%s.%d,lat:%s%s.%d\n", time,slat,ilat,val1,slon,ilon,val2);
   //gprsDrvOUT_puts(outstr,0);
   //return(0);
@@ -121,10 +140,12 @@ void proto_main(void){
           if(strchr((char *)streamPtr,'V') == NULL)
           {
             *strchr((char *)streamPtr,'\r')=0;
-            gprsSendCoord((char *)streamPtr);
-            gprsDrv_SendData(outstr);
-            gpsDrvOUT_puts(outstr,0);
-            gpsDrvOUT_write('\n');
+            if(gprsSendCoord((char *)streamPtr))
+            {
+              gprsDrv_SendData(outstr);
+              gpsDrvOUT_puts(outstr,0);
+              gpsDrvOUT_write('\n');
+            }
           }
           break;
         case rpi_e:

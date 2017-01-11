@@ -71,27 +71,32 @@ int32_t gprsDrvIN_write(uint8_t data){
 #define TIMEOUT 300
 #include <stdio.h>
 void gprsDrv_Init(void){
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
+  Delay(4000);
   //gprsDrvOUT_puts("AT+SAPBR = 3,1,\"CONTYPE\",\"GPRS\"\r\n",0);
   gprsDrvOUT_puts("AT+SAPBR = 1,1\r\n",0);
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
+  Delay(4000);
   gprsDrvOUT_puts("AT+HTTPINIT\r\n",0);
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
+  Delay(4000);
   gprsDrvOUT_puts("ATE0\r\n",0);
 }
 
 void gprsDrv_SendData(const char *pkg){
-  char str[200];
+  char str[500];
   //lat=-12.52&long=-76.589
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
+  //Delay(4000);
   gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
-  wifiDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
-  waitforit(TIMEOUT);
-  sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas1.php?%s\"\r\n",pkg);
+  //waitforit(TIMEOUT);
+  Delay(2500);
+  sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas2.php?%s\"\r\n",pkg);
   gprsDrvOUT_puts(str,0);
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
+  Delay(2500);
   gprsDrvOUT_puts("AT+HTTPACTION=0\r\n",0);
-  waitforit(TIMEOUT);
+  //waitforit(TIMEOUT);
 }
 
 void gprsDrv_Setup(void){
