@@ -87,7 +87,7 @@ uint8_t gprsSendCoord(char *str){
 void HW_setup(void){
   common_Setup();
   rpiDrv_Setup();
-  //wifiDrv_Setup();
+  wifiDrv_Setup();
   gprsDrv_Setup();
   gpsDrv_Setup();
   LOCK_ON();

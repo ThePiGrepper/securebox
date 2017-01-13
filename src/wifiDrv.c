@@ -1,4 +1,5 @@
 #include "wifiDrv.h"
+#include "common.h"
 #include "settings.h"
 #include "simple_queue.h"
 #include "event_manager.h"
@@ -24,8 +25,21 @@ static int32_t getINBufFreeSpace(void)
     dinBufCtrl.tail-dinBufCtrl.head-1:WIFIDRV_BUFIN_SZ+(dinBufCtrl.tail-dinBufCtrl.head)-1;
 }
 
+static uint8_t parse_count = 0;
 void wifiParse(uint8_t data){
-  wifiDrvIN_write(data);
+  if(parse_count < 2)
+  {
+    if(data == '$')
+      parse_count++;
+    else
+      parse_count=0;
+  }
+  else
+  {
+    wifiDrvIN_write(data);
+    if(data == '\n')
+      parse_count=0;
+  }
 }
 
 int32_t wifiDrvIN_read(uint8_t **ptr){
@@ -102,9 +116,9 @@ void wifiDrv_Setup(void){
   GPIO_InitStructure.GPIO_Pin = WIFI_RST_PIN | WIFI_MODE_PIN;
   GPIO_InitStructure.GPIO_Speed =GPIO_Medium_Speed;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-  GPIO_Init(WIFI_PORT, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(WIFI_PORT2, &GPIO_InitStructure);
 
   GPIO_PinAFConfig(WIFI_PORT,WIFI_TX_PINSOURCE,WIFI_MODULE_AF);
   GPIO_PinAFConfig(WIFI_PORT,WIFI_RX_PINSOURCE,WIFI_MODULE_AF);
@@ -114,17 +128,18 @@ void wifiDrv_Setup(void){
   USART_Init(WIFI_MODULE,&USART_InitStructure);
 
   /* Configure WIFI interrupt */
-//  NVIC_InitStructure.NVIC_IRQChannel = WIFI_IRQ;
-//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//  NVIC_Init(&NVIC_InitStructure);
-//  USART_ITConfig(WIFI_MODULE, WIFI_RX_IT, ENABLE);
+  NVIC_InitStructure.NVIC_IRQChannel = WIFI_IRQ;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+  USART_ITConfig(WIFI_MODULE, WIFI_RX_IT, ENABLE);
   //USART_ITConfig(WIFI_MODULE, WIFI_TX_IT, ENABLE);
   USART_Cmd(WIFI_MODULE, ENABLE);
 
   //Set wifi status
-  //wifiSetStatus(wifi_disabled);
+  wifiSetStatus(wifi_disabled_hard);
+  wifiSetStatus(wifi_setup);
 #endif
 }
 
@@ -134,27 +149,28 @@ int32_t wifiSetStatus(wifiStatus status){
   {
     case wifi_disabled:
       wifiDrvOUT_puts("\r\n",0);
-      for(uint32_t i=0;i<100000000;i++);
+      Delay(500);
       wifiDrvOUT_puts("=node.restart()\r\n",0);
-      for(uint32_t i=0;i<100000000;i++);
+      Delay(1500);
       break;
     case wifi_disabled_hard:
+      WIFI_RST_OFF; //0v
       WIFI_MODE_USER;
-      WIFI_RST_ON; //0v
-      for(int i=0;i<100000;i++);
-      WIFI_RST_OFF; //3v3
+      Delay(300);
+      WIFI_RST_ON; //3v3
+      Delay(1500);
       break;
     case wifi_setup:
       wifiDrvOUT_puts("=node.restart()\r\n",0);
-      for(uint32_t i=0;i<100000000;i++);
-      //wifiDrvOUT_puts("=file.fsinfo()\r\n",0);
-      wifiDrvOUT_puts("do(\"setup.lua\")\r\n",0);
+      Delay(1500);
+      wifiDrvOUT_puts("=dofile('setup.lua')\r\n",0);
+      Delay(300);
       break;
     case wifi_auth:
       wifiDrvOUT_puts("=node.restart()\r\n",0);
-      for(uint32_t i=0;i<100000000;i++);
-      //wifiDrvOUT_puts("=file.fsinfo()\r\n",0);
-      wifiDrvOUT_puts("do(\"auth.lua\")\r\n",0);
+      Delay(1500);
+      wifiDrvOUT_puts("=dofile('auth.lua')\r\n",0);
+      Delay(300);
       break;
     //default:
   }

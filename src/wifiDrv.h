@@ -12,8 +12,8 @@ typedef struct {
 
 #define WIFI_RST_ON GPIO_SetBits(WIFI_PORT2, WIFI_RST_PIN)
 #define WIFI_RST_OFF GPIO_ResetBits(WIFI_PORT2, WIFI_RST_PIN)
-#define WIFI_MODE_PROG GPIO_SetBits(WIFI_PORT2, WIFI_MODE_PIN)
-#define WIFI_MODE_USER GPIO_ResetBits(WIFI_PORT2, WIFI_MODE_PIN)
+#define WIFI_MODE_PROG GPIO_ResetBits(WIFI_PORT2, WIFI_MODE_PIN)
+#define WIFI_MODE_USER GPIO_SetBits(WIFI_PORT2, WIFI_MODE_PIN)
 
 typedef enum {
   wifi_disabled,
