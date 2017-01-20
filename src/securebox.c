@@ -3,13 +3,74 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef struct{
+  char pass[21];
+  char id[21];
+  char slat[20];
+  char slon[20];
+  int lat;
+  int lon;
+} mdata_s;
+mdata_s mdata={0,0,0,0,0,0};
+
+uint8_t wifiSetup(char *str)
+{
+  char *id=strchr(str,'=')+1;
+  char *temp=strchr(id,'&');
+  *temp = 0;
+  strcpy(mdata.id,id);
+  char *lat=strchr(temp+1,'=')+1;
+  temp=strchr(lat,'&');
+  *temp = 0;
+  strcpy(mdata.slat,lat);
+  lat=strchr(lat,'.')+1;
+  mdata.lat = atoi(lat);
+  if(mdata.lat<10000) mdata.lat*=10;
+  char *lon=strchr(temp+1,'=')+1;
+  temp=strchr(lon,'&');
+  *temp = 0;
+  strcpy(mdata.slon,lon);
+  lon=strchr(lon,'.')+1;
+  mdata.lon = atoi(lon);
+  if(mdata.lon<10000) mdata.lon*=10;
+  char *pass=strchr(temp+1,'=')+1;
+  //temp=strchr(pass,'&');
+  //*temp = 0;
+  strcpy(mdata.pass,pass);
+  return 1;
+}
+
+uint8_t wifiAuth(char *str)
+{
+  char *pass=strchr(str,'=')+1;
+  if(strcmp(mdata.pass,pass)==0)
+    return 1;
+  else
+    return 0;
+}
+
+#define COORD_DIST 20
+int checkPos(int lat, int lon)
+{
+  if(lat<10000) lat*=10;
+  if(lon<10000) lon*=10;
+  if(abs(mdata.lat-lat) < COORD_DIST && abs(mdata.lon-lon)< COORD_DIST)
+    return 1;
+  else
+    return -1;
+}
+
+static int iscloseCnt = 0;
 #define COORDSETSIZE 10
 char outstr[500];
+char currlat[15];
+char currlon[15];
 static int coordLen=0;
 static int coordCnt=0;
 uint8_t gprsSendCoord(char *str){
    const char s[] = ",";
    char *token;
+   char currStr[64];
    char time[15];
    char ilat[15];
    char *dlat=NULL;
@@ -21,7 +82,6 @@ uint8_t gprsSendCoord(char *str){
    int val2;
    unsigned char i=0;
    char *ptr;
-   char currStr[64];
    /* get the first token */
    token = strtok(str, s);
    /* walk through other tokens */
@@ -63,12 +123,22 @@ uint8_t gprsSendCoord(char *str){
   }
   val1=strtol(dlat,NULL,10)/60;
   val2=strtol(dlon,NULL,10)/60;
+  sprintf(currlat,"%s%s.%d",slat,ilat,val1);
+  sprintf(currlon,"%s%s.%d",slon,ilon,val2);
   if(coordCnt < (COORDSETSIZE-1))
-    sprintf(currStr,"lat%d=%s%s.%d&long%d=%s%s.%d&", coordCnt,slat,ilat,val1,coordCnt,slon,ilon,val2);
+    sprintf(currStr,"lat%d=%s&long%d=%s&", coordCnt,currlat,coordCnt,currlon);
   else
-    sprintf(currStr,"lat%d=%s%s.%d&long%d=%s%s.%d", coordCnt,slat,ilat,val1,coordCnt,slon,ilon,val2);
+    sprintf(currStr,"lat%d=%s&long%d=%s", coordCnt,currlat,coordCnt,currlon);
   strcpy(outstr + coordLen, currStr);
   coordLen+=strlen(currStr);
+  iscloseCnt+=checkPos(val1,val2);
+  if(iscloseCnt<0)
+    iscloseCnt = 0;
+  else if(iscloseCnt>16)
+    iscloseCnt = 16;
+  char temp[10];
+  sprintf(temp,">%d\n",iscloseCnt);
+  gpsDrvOUT_puts(temp,0);
   if(++coordCnt >= COORDSETSIZE)
   {
     coordCnt=0;
@@ -95,8 +165,10 @@ void HW_setup(void){
   LOCK_OFF();
 }
 
-typedef enum { status_opened,status_locked } lockStatus;
+typedef enum { status_opened,status_locked,status_close } lockStatus;
 
+uint8_t idOK = 0;
+uint8_t passOK = 0;
 void proto_main(void){
   //stages: status_opened, status_locked.
   //status_opened->status_locked: needs: setup=1.
@@ -110,6 +182,7 @@ void proto_main(void){
   event_type currEvent;
   lockStatus currStatus = status_opened;
   lockStatus nextStatus = status_opened;
+  lockStatus prevStatus = status_opened;
   //set to status_opened
   HW_setup();
   //wifiSetStatus(wifi_setup);
@@ -117,6 +190,8 @@ void proto_main(void){
   //gpsDrvOUT_puts("testing..\n",0);
   while(1)
   {
+    prevStatus = currStatus;
+    currStatus = nextStatus;
     int32_t event_id = EM_getEvent(&currEvent);
     if(event_id != -1)
     {
@@ -124,34 +199,111 @@ void proto_main(void){
       {
         case wifi_e:
           wifiDrvIN_read(&streamPtr);
-          gpsDrvOUT_write('+');
-          gpsDrvOUT_puts((char *)streamPtr,'\n');
-          gpsDrvOUT_write('\n');
+          if(currStatus == status_opened)
+          {
+            //parse data and store it
+            *strchr((char *)streamPtr,'\r')=0;
+            if(wifiSetup((char *)streamPtr))
+            {
+              //all data is saved and the trip can start
+              //gpsDrvOUT_puts((char *)streamPtr,0);
+              //gpsDrvOUT_write('\n');
+              LOCK_ON();
+              nextStatus = status_locked;
+            }
+          }
+          else if(currStatus == status_close)
+          {
+            //parse pass and unlock if ok
+            *strchr((char *)streamPtr,'\r')=0;
+            if(wifiAuth((char *)streamPtr)) //check if pass OK
+            {
+              passOK = 1;
+              //gpsDrvOUT_puts((char *)streamPtr,0);
+              //gpsDrvOUT_write('\n');
+            }
+            else
+            {
+              //send gprs alert for wrong pass
+              gpsDrvOUT_puts("error:wrong pass\n",0);
+            }
+          }
           break;
         case gprs_e:
           gprsDrvIN_read(&streamPtr);
-          //gpsDrvOUT_puts((char *)streamPtr,'\n');
-          //gpsDrvOUT_write('\n');
           break;
         case gps_e:
           gpsDrvIN_read(&streamPtr);
-          gpsDrvOUT_puts((char *)streamPtr,'\n');
-          gpsDrvOUT_write('\n');
-          if(strchr((char *)streamPtr,'V') == NULL)
+          if(currStatus == status_locked || currStatus == status_close)
           {
-            *strchr((char *)streamPtr,'\r')=0;
-            if(gprsSendCoord((char *)streamPtr))
+            gpsDrvOUT_puts((char *)streamPtr,'\n');
+            gpsDrvOUT_write('\n');
+            if(strchr((char *)streamPtr,'V') == NULL)
             {
-              gprsDrv_SendData(outstr);
-              gpsDrvOUT_puts(outstr,0);
-              gpsDrvOUT_write('\n');
+              *strchr((char *)streamPtr,'\r')=0;
+              if(gprsSendCoord((char *)streamPtr))
+              {
+                gprsDrv_SendData(outstr,0);
+                gpsDrvOUT_puts(outstr,0);
+                gpsDrvOUT_write('\n');
+                if(iscloseCnt>10)
+                {
+                  if(currStatus == status_locked)
+                  {
+                    nextStatus = status_close;
+                    wifiSetStatus(wifi_auth);
+                  }
+                }
+                else
+                {
+                  if(currStatus == status_close)
+                  {
+                    nextStatus = status_locked;
+                    idOK = 0;
+                    passOK = 0;
+                    wifiSetStatus(wifi_disabled);
+                  }
+                }
+              }
             }
+            if(currStatus == status_close && passOK == 1 && idOK == 1)
+            {
+              LOCK_OFF();
+              nextStatus = status_opened;
+              idOK = 0;
+              passOK = 0;
+              gpsDrvOUT_puts("the END\n",0);
+            }
+            char temp[100];
+            sprintf(temp,"id:%d,pass:%d\n",idOK,passOK);
+            gpsDrvOUT_puts(temp,0);
           }
           break;
         case rpi_e:
           rpiDrvIN_read(&streamPtr);
           gpsDrvOUT_puts((char *)streamPtr,'\n');
           gpsDrvOUT_write('\n');
+          *strchr((char *)streamPtr,'\r')=0;
+          char *cmd=strchr((char *)streamPtr,':')+1;
+          *(cmd-1) = 0;
+          char temp[25];
+          sprintf(temp,"mid:%s,id:%s\n",mdata.id,cmd);
+          gpsDrvOUT_puts(temp,0);
+          if(currStatus == status_close && strcmp("dni",(char *)streamPtr) == 0)
+          {
+            if(strcmp(mdata.id,cmd) == 0)
+            {
+              idOK=1;
+            }
+            else //send alert
+            {
+              char temp[200];
+              sprintf(temp,"agent=%d&error=4&lat=%s&lon=%s",0,currlat,currlon);
+              gprsDrv_SendData(temp,1);
+              gpsDrvOUT_puts(temp,0);
+              gpsDrvOUT_write('\n');
+            }
+          }
           break;
         default:
           gpsDrvOUT_write('+');
