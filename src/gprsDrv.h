@@ -14,7 +14,7 @@ typedef enum { DISABLED, ENABLED } gprsStatus;
 void gprsParse(uint8_t data);
 int32_t gprsDrvIN_read(uint8_t **ptr);
 int32_t gprsDrvIN_write(uint8_t data);
-void gprsDrv_SendData(const char *pkg);
+void gprsDrv_SendData(const char *pkg, unsigned char type);
 void gprsDrv_Setup(void);
 int32_t gprsSetStatus(gprsStatus status);
 gprsStatus gprsGetStatus(void);

@@ -83,15 +83,19 @@ void gprsDrv_Init(void){
   gprsDrvOUT_puts("ATE0\r\n",0);
 }
 
-void gprsDrv_SendData(const char *pkg){
+void gprsDrv_SendData(const char *pkg, unsigned char type){
   char str[500];
   //lat=-12.52&long=-76.589
   //waitforit(TIMEOUT);
-  //Delay(4000);
+  if(type != 0)
+    Delay(5000);
   gprsDrvOUT_puts("AT+SAPBR = 3,1,\"APN\",\"movistar\"\r\n",0);
   //waitforit(TIMEOUT);
   Delay(2500);
-  sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas2.php?%s\"\r\n",pkg);
+  if(type == 0)//data
+    sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_coordenadas2.php?%s\"\r\n",pkg);
+  else
+    sprintf(str,"AT+HTTPPARA = \"URL\",\"http://190.216.184.54/guarda_alertas2.php?%s\"\r\n",pkg);
   gprsDrvOUT_puts(str,0);
   //waitforit(TIMEOUT);
   Delay(2500);
