@@ -298,7 +298,7 @@ void proto_main(void){
             else //send alert
             {
               char temp[200];
-              sprintf(temp,"agent=%d&error=4&lat=%s&lon=%s",0,currlat,currlon);
+              sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
               gprsDrv_SendData(temp,1);
               gpsDrvOUT_puts(temp,0);
               gpsDrvOUT_write('\n');
