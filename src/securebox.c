@@ -210,6 +210,9 @@ void proto_main(void){
               //gpsDrvOUT_write('\n');
               LOCK_ON();
               nextStatus = status_locked;
+              idOK = 0;
+              passOK = 0;
+              wifiSetStatus(wifi_disabled);
             }
           }
           else if(currStatus == status_close)
