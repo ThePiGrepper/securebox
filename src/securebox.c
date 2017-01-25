@@ -225,7 +225,11 @@ void proto_main(void){
             else
             {
               //send gprs alert for wrong pass
-              gpsDrvOUT_puts("error:wrong pass\n",0);
+              char temp[200];
+              sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
+              gprsDrv_SendData(temp,1);
+              gpsDrvOUT_puts(temp,0);
+              gpsDrvOUT_write('\n');
             }
           }
           break;
@@ -289,16 +293,27 @@ void proto_main(void){
           char temp[25];
           sprintf(temp,"mid:%s,id:%s\n",mdata.id,cmd);
           gpsDrvOUT_puts(temp,0);
-          if(currStatus == status_close && strcmp("dni",(char *)streamPtr) == 0)
+          if(strcmp("dni",(char *)streamPtr) == 0)
           {
             if(strcmp(mdata.id,cmd) == 0)
             {
-              idOK=1;
+              if(currStatus == status_close) 
+              {
+                idOK=1;
+              }
+              else
+              {
+                char temp[200];
+                sprintf(temp,"agent=%d&error=5&lat=%s&long=%s",0,currlat,currlon);
+                gprsDrv_SendData(temp,1);
+                gpsDrvOUT_puts(temp,0);
+                gpsDrvOUT_write('\n');
+              }
             }
             else //send alert
             {
               char temp[200];
-              sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
+              sprintf(temp,"agent=%d&error=3&lat=%s&long=%s",0,currlat,currlon);
               gprsDrv_SendData(temp,1);
               gpsDrvOUT_puts(temp,0);
               gpsDrvOUT_write('\n');
