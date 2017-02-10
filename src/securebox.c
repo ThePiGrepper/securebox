@@ -294,6 +294,11 @@ void proto_main(void){
               idOK = 0;
               passOK = 0;
               gpsDrvOUT_puts("the END\n",0);
+              char temp[200];
+              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
+              gprsDrv_SendData(temp,1);
+              //gpsDrvOUT_puts(temp,0);
+              //gpsDrvOUT_write('\n');
             }
             char temp[100];
             sprintf(temp,"id:%d,pass:%d\n",idOK,passOK);
