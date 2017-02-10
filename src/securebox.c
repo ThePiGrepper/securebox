@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+char currlat[15];
+char currlon[15];
 typedef struct{
   char pass[21];
   char id[21];
@@ -43,10 +45,24 @@ uint8_t wifiSetup(char *str)
 uint8_t wifiAuth(char *str)
 {
   char *pass=strchr(str,'=')+1;
-  if(strcmp(mdata.pass,pass)==0)
+  if(strlen(pass) == (strlen(mdata.pass)+1) && pass[strlen(pass)-1] == '1')
+  { //panic alert
+    //send gprs alert for wrong pass
+    char temp[200];
+    sprintf(temp,"agent=%d&error=6&lat=%s&long=%s",0,currlat,currlon);
+    gprsDrv_SendData(temp,1);
+    gpsDrvOUT_puts(temp,0);
+    gpsDrvOUT_write('\n');
     return 1;
+  }
+  else if(strcmp(mdata.pass,pass) == 0)
+  {
+    return 1;
+  }
   else
+  {
     return 0;
+  }
 }
 
 #define COORD_DIST 20
@@ -63,8 +79,6 @@ int checkPos(int lat, int lon)
 static int iscloseCnt = 0;
 #define COORDSETSIZE 10
 char outstr[500];
-char currlat[15];
-char currlon[15];
 static int coordLen=0;
 static int coordCnt=0;
 uint8_t gprsSendCoord(char *str){
