@@ -289,14 +289,18 @@ void proto_main(void){
             }
             if(currStatus == status_close && passOK == 1 && idOK == 1)
             {
-              LOCK_OFF();
-              nextStatus = status_opened;
-              idOK = 0;
-              passOK = 0;
-              gpsDrvOUT_puts("the END\n",0);
               char temp[200];
               sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
               gprsDrv_SendData(temp,1);
+              LOCK_OFF();
+              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
+              gprsDrv_SendData(temp,1);
+              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
+              gprsDrv_SendData(temp,1);
+             // nextStatus = status_opened;
+              idOK = 0;
+              passOK = 0;
+              gpsDrvOUT_puts("the END\n",0);
               //gpsDrvOUT_puts(temp,0);
               //gpsDrvOUT_write('\n');
             }
