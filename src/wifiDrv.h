@@ -19,7 +19,8 @@ typedef enum {
   wifi_disabled,
   wifi_disabled_hard,
   wifi_setup,
-  wifi_auth
+  wifi_auth,
+  wifi_connect
 } wifiStatus;
 
 void wifiParse(uint8_t data);

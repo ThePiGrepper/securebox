@@ -172,6 +172,12 @@ int32_t wifiSetStatus(wifiStatus status){
       wifiDrvOUT_puts("=dofile('auth.lua')\r\n",0);
       Delay(300);
       break;
+    case wifi_connect:
+      wifiDrvOUT_puts("=node.restart()\r\n",0);
+      Delay(1500);
+      wifiDrvOUT_puts("=dofile('connect.lua')\r\n",0);
+      Delay(300);
+      break;
     //default:
   }
   curr_status = status;

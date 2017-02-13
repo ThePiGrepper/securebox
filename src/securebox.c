@@ -65,6 +65,34 @@ uint8_t wifiAuth(char *str)
   }
 }
 
+//returns current link status
+uint32_t wifiLinkCount = 0;
+uint8_t wifiLink(char *str)
+{
+  if(strcmp(str,"remote=0") == 0) //no connection
+  {
+    wifiLinkCount++;
+    switch(wifiLinkCount)
+    {
+      case 3:
+              return 1;
+      case 12:
+              return 2;
+      default:
+              return 0;
+    }
+  }
+  else if(strcmp(str,"remote=1") == 0) //connected
+  {
+    wifiLinkCount = 0;
+    return 0;
+  }
+  else
+  {
+    return 100; //unknown feed
+  }
+}
+
 #define COORD_DIST 20
 int checkPos(int lat, int lon)
 {
@@ -213,40 +241,61 @@ void proto_main(void){
       {
         case wifi_e:
           wifiDrvIN_read(&streamPtr);
-          if(currStatus == status_opened)
+          *strchr((char *)streamPtr,'\r')=0;
+          uint32_t linkTest = wifiLink((char *)streamPtr);
+          if(linkTest == 1 && currStatus != status_opened) //test connection with remote device
           {
-            //parse data and store it
-            *strchr((char *)streamPtr,'\r')=0;
-            if(wifiSetup((char *)streamPtr))
-            {
-              //all data is saved and the trip can start
-              //gpsDrvOUT_puts((char *)streamPtr,0);
-              //gpsDrvOUT_write('\n');
-              LOCK_ON();
-              nextStatus = status_locked;
-              idOK = 0;
-              passOK = 0;
-              wifiSetStatus(wifi_disabled);
-            }
+            //send gprs alert for temporal disconnection
+            char temp[200];
+            sprintf(temp,"agent=%d&error=1&lat=%s&long=%s",0,currlat,currlon);
+            gprsDrv_SendData(temp,1);
+            gpsDrvOUT_puts(temp,0);
+            gpsDrvOUT_write('\n');
           }
-          else if(currStatus == status_close)
+          else if(linkTest == 2 && currStatus != status_opened)
           {
-            //parse pass and unlock if ok
-            *strchr((char *)streamPtr,'\r')=0;
-            if(wifiAuth((char *)streamPtr)) //check if pass OK
+            //send gprs alert for disconnection timeout
+            char temp[200];
+            sprintf(temp,"agent=%d&error=2&lat=%s&long=%s",0,currlat,currlon);
+            gprsDrv_SendData(temp,1);
+            gpsDrvOUT_puts(temp,0);
+            gpsDrvOUT_write('\n');
+          }
+          else if(linkTest == 100) //pass-though
+          {
+            if(currStatus == status_opened)
             {
-              passOK = 1;
-              //gpsDrvOUT_puts((char *)streamPtr,0);
-              //gpsDrvOUT_write('\n');
+              //parse data and store it
+              if(wifiSetup((char *)streamPtr))
+              {
+                //all data is saved and the trip can start
+                //gpsDrvOUT_puts((char *)streamPtr,0);
+                //gpsDrvOUT_write('\n');
+                LOCK_ON();
+                nextStatus = status_locked;
+                idOK = 0;
+                passOK = 0;
+                wifiSetStatus(wifi_connect);
+              }
             }
-            else
+            else if(currStatus == status_close)
             {
-              //send gprs alert for wrong pass
-              char temp[200];
-              sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
-              gprsDrv_SendData(temp,1);
-              gpsDrvOUT_puts(temp,0);
-              gpsDrvOUT_write('\n');
+              //parse pass and unlock if ok
+              if(wifiAuth((char *)streamPtr)) //check if pass OK
+              {
+                passOK = 1;
+                //gpsDrvOUT_puts((char *)streamPtr,0);
+                //gpsDrvOUT_write('\n');
+              }
+              else
+              {
+                //send gprs alert for wrong pass
+                char temp[200];
+                sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
+                gprsDrv_SendData(temp,1);
+                gpsDrvOUT_puts(temp,0);
+                gpsDrvOUT_write('\n');
+              }
             }
           }
           break;
