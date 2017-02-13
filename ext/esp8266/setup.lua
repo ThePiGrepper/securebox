@@ -1,8 +1,8 @@
 cfg =
 {
-    ip="192.168.1.100",
+    ip="192.168.4.1",
     netmask="255.255.255.0",
-    gateway="192.168.1.1"
+    gateway="192.168.4.1"
 }
 
 wifi.setmode(wifi.SOFTAP)
