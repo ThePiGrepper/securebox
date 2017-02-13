@@ -15,6 +15,33 @@ typedef struct{
 } mdata_s;
 mdata_s mdata={0,0,0,0,0,0};
 
+char currAlerts[20];
+void addAlert(uint8_t alert){
+  char temp[10];
+  sprintf(temp,"%d.",alert);
+  strcat(currAlerts,temp);
+}
+
+void cleanAlert(void){
+  *currAlerts=0;
+}
+
+char *getAlert(void){
+  if(strcmp(currAlerts,"0")!=0)
+  {
+    uint32_t len = strlen(currAlerts);
+    if(len == 0)
+    {
+      strcpy(currAlerts,"0");
+    }
+    else
+    {
+      currAlerts[len-1]=0;
+    }
+  }
+  return currAlerts;
+}
+
 uint8_t wifiSetup(char *str)
 {
   char *id=strchr(str,'=')+1;
