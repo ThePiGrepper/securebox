@@ -75,11 +75,7 @@ uint8_t wifiAuth(char *str)
   if(strlen(pass) == (strlen(mdata.pass)+1) && pass[strlen(pass)-1] == '1')
   { //panic alert
     //send gprs alert for wrong pass
-    char temp[200];
-    sprintf(temp,"agent=%d&error=6&lat=%s&long=%s",0,currlat,currlon);
-    gprsDrv_SendData(temp,1);
-    gpsDrvOUT_puts(temp,0);
-    gpsDrvOUT_write('\n');
+    addAlert(6);
     return 1;
   }
   else if(strcmp(mdata.pass,pass) == 0)
@@ -273,20 +269,12 @@ void proto_main(void){
           if(linkTest == 1 && currStatus != status_opened) //test connection with remote device
           {
             //send gprs alert for temporal disconnection
-            char temp[200];
-            sprintf(temp,"agent=%d&error=1&lat=%s&long=%s",0,currlat,currlon);
-            gprsDrv_SendData(temp,1);
-            gpsDrvOUT_puts(temp,0);
-            gpsDrvOUT_write('\n');
+            addAlert(1);
           }
           else if(linkTest == 2 && currStatus != status_opened)
           {
             //send gprs alert for disconnection timeout
-            char temp[200];
-            sprintf(temp,"agent=%d&error=2&lat=%s&long=%s",0,currlat,currlon);
-            gprsDrv_SendData(temp,1);
-            gpsDrvOUT_puts(temp,0);
-            gpsDrvOUT_write('\n');
+            addAlert(2);
           }
           else if(linkTest == 100) //pass-though
           {
@@ -317,11 +305,7 @@ void proto_main(void){
               else
               {
                 //send gprs alert for wrong pass
-                char temp[200];
-                sprintf(temp,"agent=%d&error=4&lat=%s&long=%s",0,currlat,currlon);
-                gprsDrv_SendData(temp,1);
-                gpsDrvOUT_puts(temp,0);
-                gpsDrvOUT_write('\n');
+                addAlert(4);
               }
             }
           }
@@ -340,8 +324,11 @@ void proto_main(void){
               *strchr((char *)streamPtr,'\r')=0;
               if(gprsSendCoord((char *)streamPtr))
               {
-                gprsDrv_SendData(outstr,0);
-                gpsDrvOUT_puts(outstr,0);
+                char toutstr[600];
+                sprintf(toutstr,"alertas=%s&%s",getAlert(),outstr);
+                cleanAlert();
+                gprsDrv_SendData(toutstr,0);
+                gpsDrvOUT_puts(toutstr,0);
                 gpsDrvOUT_write('\n');
                 if(iscloseCnt>10)
                 {
@@ -365,14 +352,8 @@ void proto_main(void){
             }
             if(currStatus == status_close && passOK == 1 && idOK == 1)
             {
-              char temp[200];
-              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
-              gprsDrv_SendData(temp,1);
+              addAlert(7);
               LOCK_OFF();
-              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
-              gprsDrv_SendData(temp,1);
-              sprintf(temp,"agent=%d&error=7&lat=%s&long=%s",0,currlat,currlon);
-              gprsDrv_SendData(temp,1);
              // nextStatus = status_opened;
               idOK = 0;
               passOK = 0;
@@ -405,20 +386,12 @@ void proto_main(void){
               }
               else
               {
-                char temp[200];
-                sprintf(temp,"agent=%d&error=5&lat=%s&long=%s",0,currlat,currlon);
-                gprsDrv_SendData(temp,1);
-                gpsDrvOUT_puts(temp,0);
-                gpsDrvOUT_write('\n');
+                addAlert(5);
               }
             }
             else //send alert
             {
-              char temp[200];
-              sprintf(temp,"agent=%d&error=3&lat=%s&long=%s",0,currlat,currlon);
-              gprsDrv_SendData(temp,1);
-              gpsDrvOUT_puts(temp,0);
-              gpsDrvOUT_write('\n');
+              addAlert(3);
             }
           }
           break;
