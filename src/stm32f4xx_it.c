@@ -223,4 +223,13 @@ void RPI_IRQHandler(void)
   }
 }
 
+void ACCGYRO_IRQHandler(void)
+{
+  if (I2C_GetITStatus(ACCGYRO_MODULE, ACCGYRO_RX_IT) == SET)
+  {
+      uint8_t rxdata = I2C_ReceiveData(ACCGYRO_MODULE);
+      accgyroParse(rxdata);
+      //accgyroDrvOUT_write(rxdata);
+  }
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
