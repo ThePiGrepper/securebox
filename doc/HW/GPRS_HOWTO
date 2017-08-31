@@ -1,0 +1,123 @@
+* Setup Module:
+AT+SAPBR = 1,1
+AT+HTTPINIT
+AT+SAPBR = 3,1,"APN","claro"
+//it makes sense and it's suggested in several places to first set the bearer params(3,1),
+//and then open the bearer connection(1,1), but THIS WORKS.
+
+* StatusCodes:(more relevant)
+  200: OK
+  601: Network Error
+
+* Handle disconnection:
+//to reconnect to the network, apparently this works:
+AT+CIPCSGP=1,"claro"
+returns "OK" //the next GET request should return 200 again, instead of 601(network error)
+
+Another method to handle disconnection(or 602 return code) is closing and opening connection:
+AT+SAPBR=0,1 //close connection
+AT+SAPBR=1,1 //open connection
+*This probably will bring back the connection without setting HTTPPARA(request value) again,
+ nor having to restart with HTTPINIT.
+
+* Check status:
+*Apparently with this you can check the current network settings.
+*Not necessarily if there's an active connection though.
+*these are the return values for both commands when a network is set.
+*when it's not, the first command returns: +SAPBR: 1,3,"0.0.0.0" and APN field is empty.
+===
+AT+SAPBR=2,1
++SAPBR: 1,1,"10.77.121.168"
+
+OK
+AT+SAPBR=4,1
++SAPBR:
+CONTYPE: GPRS
+APN: claro
+PHONENUM:
+USER:
+PWD:
+RATE: 2
+
+OK
+===
+
+* Send Get request:
+AT+HTTPPARA = "URL","www.cafferata.me/input.php?a=3&b=4&c=5"
+AT+HTTPACTION=0
+returns:
+*HTTPPARA returns "OK" only, because it doesnt do anything, just saves the request internally.
+===
+OK
+
++HTTPACTION: 0,200,11
+===
+
+* Make a phone call:
+ATD<number>;
+returns "OK"
+Hang up:
+ATH
+*this always returns "OK", even without an ongoing call.
+returns "OK"
+
+* Send SMS:
+For  more info about unicode SMSs: www.smssolutions.net/tutorials/gsm/sendsmsat/
+- Check if there's SMS functionality. if answer is OK, then everything is set.
+- This also sets SMS text mode.
+AT+CMGF=1
+OK
+AT+CMGS="998355942"
+> this is  a message
+>
+//end message with <Ctrl+Z>
+returns:
+===
++CMGS: 7  //that's the message's ID
+
+OK
+===
+Check Time:
+AT+CIPGSMLOC=2,1
+returns:
+===
++CIPGSMLOC: 0,2017/08/30,18:30:58
+
+OK
+===
+
+AT+CCLK?
+*This only checks for the internal RTC of the module. not from the network!!
+returns:
+===
++CCLK: "04/01/01,00:09:19+00"
+
+OK
+===
+
+Check Time + Position:
+AT+CIPGSMLOC=1,1
+returns:
+*returns longitude first, and latitude second.
+*NOTE:google format is latitude first.
+===
++CIPGSMLOC: 0,-76.988640,-12.117861,2017/08/30,18:30:46
+
+OK
+===
+
+Check signal strength:
+AT+CSQ
+returns:
+===
+SQ: 13,0
+
+OK
+===
+AT+COPS=?
+returns:
+===
++COPS: (2,"TIM PERU","TIMPERU","71610"),(3,"71606","71606","71606"),,(0-4),(0-2)
+
+OK
+===
