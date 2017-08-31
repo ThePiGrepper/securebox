@@ -10,6 +10,8 @@ typedef struct {
 #define ACCGYRODRV_BUFIN_SZ 1000
 #define ACCGYRODRV_BUFOUT_SZ 500
 
+#define ACCGYRO_SCL_SPEED 30000
+
 void accgyroParse(uint8_t data);
 int32_t accgyroDrvIN_read(uint8_t **ptr);
 int32_t accgyroDrvIN_write(uint8_t data);

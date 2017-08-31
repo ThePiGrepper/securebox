@@ -93,39 +93,41 @@ void accgyroDrv_Setup(void){
   I2C_InitTypeDef I2C_InitStructure;
   NVIC_InitTypeDef NVIC_InitStructure;
 
-  /* RPI_PORT Periph clock enable */
-  RCC_AHB1PeriphClockCmd(ACCGYRO_GPIO_CLK, ENABLE);
+  /* ACCGYRO I2C Periph clock enable */
   ACCGYRO_MODULE_CLK_SETUP(ACCGYRO_MODULE_CLK, ENABLE);
+  /* ACCGYRO Port (SDA & SCL GPIO) clock enable */
+  RCC_AHB1PeriphClockCmd(ACCGYRO_GPIO_CLK, ENABLE);
   /* ACCGYRO Port Configuration */
   GPIO_InitStructure.GPIO_Pin = ACCGYRO_SCL_PIN | ACCGYRO_SDA_PIN;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Fast_Speed;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Low_Speed; //GPIO output speed
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 
   GPIO_PinAFConfig(ACCGYRO_PORT, ACCGYRO_SDA_PINSOURCE, ACCGYRO_MODULE_AF);
   GPIO_PinAFConfig(ACCGYRO_PORT, ACCGYRO_SCL_PINSOURCE, ACCGYRO_MODULE_AF);
   GPIO_Init(ACCGYRO_PORT, &GPIO_InitStructure);
 
-  /* I2C configuration */ //***Buscar ejemplo***//
+  /* I2C configuration */
   I2C_DeInit(ACCGYRO_MODULE);
-  I2C_InitStructure.I2C_ClockSpeed = 100000;
+  I2C_InitStructure.I2C_ClockSpeed = ACCGYRO_SCL_SPEED;
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  I2C_InitStructure.I2C_OwnAddress1 = ; // npi
+  I2C_InitStructure.I2C_OwnAddress1 = 0xEE;  // SLAVE ADDRESS
+                                             //read the example, still.. nfi
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
+  I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit; // Acknowledged address.
   I2C_Init(ACCGYRO_MODULE, &I2C_InitStructure);
 
   /* Configure ACCGYRO interrupt */
   NVIC_InitStructure.NVIC_IRQChannel = ACCGYRO_IRQ;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
 
   /* Enable the Rx buffer not empty interrupt */
-  I2C_ITConfig(ACCGYRO_MODULE, ACCGYRO_RX_IT, ENABLE);
+  I2C_ITConfig(ACCGYRO_MODULE, I2C_IT_BUF| I2C_IT_EVT, ENABLE);
 
   /* Enable the I2C peripheral */
   I2C_Cmd(ACCGYRO_MODULE, ENABLE);
