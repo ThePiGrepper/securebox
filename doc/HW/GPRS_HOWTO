@@ -1,3 +1,14 @@
+Hardware Issues:
+*SIM900 Brown-out issue(Insufficient power):
+https://forums.tessel.io/t/gprs-module-turns-off-randomly/250/7
+https://forums.tessel.io/t/gprs-board-powers-down/1014
+
+
+AT commands Notes:
+Some references w/more commands:
+https://www.exploreembedded.com/wiki/Setting_up_GPRS_with_SIM800L
+https://www.exploreembedded.com/wiki/GSM_SIM800L_Sheild_with_Arduino
+
 * Setup Module:
 AT+SAPBR = 1,1
 AT+HTTPINIT
