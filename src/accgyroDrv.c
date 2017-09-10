@@ -36,7 +36,7 @@ void accgyroParse(uint8_t data){
   }
   else
   {
-    rpiDrvIN_write(data);
+    accgyroDrvOUT_write(data);
     if(data == '\n')
       parse_count=0;
   }
