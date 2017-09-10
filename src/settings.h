@@ -110,7 +110,7 @@
 //#define ACCGYRO_IRQ I2C1_ER_IRQn // en caso de error
 #define ACCGYRO_TX_IT I2C_IT_TXE
 #define ACCGYRO_RX_IT I2C_IT_RXNE
-#define ACCGYRO_IRQHandler SPI2_IRQHandler
+#define ACCGYRO_IRQHandler I2C1_EV_IRQHandler
 
 #endif
 #endif /* __SETTINGS_H */

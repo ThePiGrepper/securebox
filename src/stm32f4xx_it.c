@@ -225,11 +225,31 @@ void RPI_IRQHandler(void)
 
 void ACCGYRO_IRQHandler(void)
 {
-  if (I2C_GetITStatus(ACCGYRO_MODULE, ACCGYRO_RX_IT) == SET)
+  uint8_t rxdata = 0;
+  switch(I2C_GetLastEvent(ACCGYRO_MODULE))
   {
-      uint8_t rxdata = I2C_ReceiveData(ACCGYRO_MODULE);
+    case I2C_EVENT_SLAVE_RECEIVER_ADDRESS_MATCHED :
+      break;
+    case I2C_EVENT_SLAVE_BYTE_RECEIVED:
+      rxdata = I2C_ReceiveData(ACCGYRO_MODULE); // Store the packet in i2c_read_packet.
       accgyroParse(rxdata);
-      //accgyroDrvOUT_write(rxdata);
+      break;
+    case I2C_EVENT_SLAVE_STOP_DETECTED:
+      //if(I2C_GetFlagStatus(ACCGYRO_MODULE,I2C_FLAG_ADDR) == SET)
+      //   I2C_ClearFlag(ACCGYRO_MODULE,I2C_FLAG_ADDR);
+      //if(I2C_GetFlagStatus(ACCGYRO_MODULE,I2C_FLAG_STOPF) == SET)
+      //   I2C_ClearFlag(ACCGYRO_MODULE,I2C_FLAG_STOPF);
+      break;
+    //case I2C_EVENT_SLAVE_TRANSMITTER_ADDRESS_MATCHED:
+    //  I2C_SendData(ACCGYRO_MODULE, i2c_packet_to_send[0]);
+    //  Tx_Index++;
+    //  break;
+    //case I2C_EVENT_SLAVE_BYTE_TRANSMITTED:
+    //  I2C_SendData(ACCGYRO_MODULE, i2c_packet_to_send[Tx_Index]);
+    //  Tx_Index++;
+    //  break;
+    default:
+      break;
   }
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
