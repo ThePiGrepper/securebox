@@ -111,6 +111,7 @@
 #define ACCGYRO_TX_IT I2C_IT_TXE
 #define ACCGYRO_RX_IT I2C_IT_RXNE
 #define ACCGYRO_IRQHandler I2C1_EV_IRQHandler
+#define ACCGYRO_ER_IRQHandler I2C1_ER_IRQHandler
 
 #endif
 #endif /* __SETTINGS_H */

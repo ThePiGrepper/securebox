@@ -6,6 +6,7 @@
 #include "gpsDrv.h"
 #include "wifiDrv.h"
 #include "rpiDrv.h"
+#include "accgyroDrv.h"
 #include "genericDrv.h"
 #include "event_manager.h"
 

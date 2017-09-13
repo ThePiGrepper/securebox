@@ -7,8 +7,8 @@ typedef struct {
   uint32_t len;
 } accgyroDrvIN_frame;
 
-#define ACCGYRODRV_BUFIN_SZ 1000
-#define ACCGYRODRV_BUFOUT_SZ 500
+#define ACCGYRODRV_BUFIN_SZ 200
+#define ACCGYRODRV_BUFOUT_SZ 100
 
 #define ACCGYRO_SCL_SPEED 30000
 

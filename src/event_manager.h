@@ -11,6 +11,7 @@ typedef enum {
   gprs_e,
   wifi_e,
   rpi_e,
+  accgyro_e,
 } event_type;
 
 #define EM_QUEUE_SIZE 50

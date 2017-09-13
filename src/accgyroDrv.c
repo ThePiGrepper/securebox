@@ -6,7 +6,7 @@
 static uint8_t dinBuf[ACCGYRODRV_BUFIN_SZ*2];
 static ringBuf_t dinBufCtrl = {dinBuf,0,0,ACCGYRODRV_BUFIN_SZ};
 
-static rpiDrvIN_frame doutPool[ACCGYRODRV_BUFOUT_SZ]={0};
+static accgyroDrvIN_frame doutPool[ACCGYRODRV_BUFOUT_SZ]={0};
 static uint32_t doutBuf[ACCGYRODRV_BUFOUT_SZ]={0};
 static uint32_t poolCount=0;
 static ringBuf32_t doutBufCtrl = {doutBuf,0,ACCGYRODRV_BUFOUT_SZ-1,ACCGYRODRV_BUFOUT_SZ};
@@ -36,7 +36,7 @@ void accgyroParse(uint8_t data){
   }
   else
   {
-    accgyroDrvOUT_write(data);
+    accgyroDrvIN_write(data);
     if(data == '\n')
       parse_count=0;
   }
@@ -54,7 +54,7 @@ int32_t accgyroDrvIN_read(uint8_t **ptr){
   return doutPool[count].len;
 }
 
-int32_t accgyroDrvOUT_write(uint8_t data){
+int32_t accgyroDrvIN_write(uint8_t data){
   if(ringBufPush(&dinBufCtrl,data)) return -1; //IN buffer full
   //writes out of boundary to enable regular string manipulation
   if((currStr + currLen) >= ACCGYRODRV_BUFIN_SZ)
@@ -73,7 +73,7 @@ int32_t accgyroDrvOUT_write(uint8_t data){
       poolCount = 0;
     currStr = dinBufCtrl.head;
     currLen = 0;
-    if(EM_setEvent(rpi_e) < 0) return -3; //event queue full
+    if(EM_setEvent(accgyro_e) < 0) return -3; //event queue full
   }
   else
   {
