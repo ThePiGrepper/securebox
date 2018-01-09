@@ -11,6 +11,8 @@ typedef struct{
 void common_Setup(void);
 void LOCK_ON(void);
 void LOCK_OFF(void);
+void SYSTEM_ON(void);
+void SYSTEM_OFF(void);
 void Delay(volatile uint32_t nTime);
 void TimingDelay_Decrement(void);
 void waitforit(int32_t timeout);

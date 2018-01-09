@@ -20,6 +20,14 @@ void common_Setup(void){
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
   GPIO_Init(LOCK_PORT, &GPIO_InitStructure);
 
+  RCC_AHB1PeriphClockCmd(SYSTEM_GPIO_CLK, ENABLE);
+  GPIO_InitStructure.GPIO_Pin = SYSTEM_PIN;
+  GPIO_InitStructure.GPIO_Speed =GPIO_Medium_Speed;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(SYSTEM_PORT, &GPIO_InitStructure);
+
 	/* Systick Configuration */
   if (SysTick_Config(SystemCoreClock / 5000))
   {
@@ -37,6 +45,15 @@ void LOCK_ON(void){
 void LOCK_OFF(void){
   GPIO_ResetBits(LOCK_PORT, LOCK_PIN);
 }
+
+void SYSTEM_ON(void){
+  GPIO_SetBits(SYSTEM_PORT, SYSTEM_PIN);
+}
+
+void SYSTEM_OFF(void){
+  GPIO_ResetBits(SYSTEM_PORT, SYSTEM_PIN);
+}
+
 
 static volatile uint32_t TimingDelay;
 /**
