@@ -54,7 +54,7 @@ file.format() //formats memory
 file.fsinfo() //returns memory stats
 uart.setup(0, 9600, 8, uart.PARITY_NONE, uart.STOPBITS_1, 1)
 gpio.mode(4, gpio.OUTPUT) //configs GPIO
-gpio.write(4, pin.LOW) //sets/clear pin //pin4 is GPIO2 on ESP-01
+gpio.write(4, gpio.LOW) //sets/clear pin //pin4 is GPIO2 on ESP-01
 gpio.read(4) //read value of pin
 
 To load lua scripts on the ESP8266:
