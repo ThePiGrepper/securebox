@@ -162,6 +162,31 @@ int32_t gprsSetStatus(gprsStatus status){
   return status;
 }
 
+uint8_t gprsPD_f=0;
+uint8_t gprsCR_f=0;
+void gprsReboot(void){
+  gprsPD_f=0;
+  gprsCR_f=0;
+  //reboot
+  Delay(2000);
+  GPIO_SetBits(GPRS_PORT2, GPRS_START_PIN);
+  Delay(2000);
+  GPIO_ResetBits(GPRS_PORT2, GPRS_START_PIN);
+  Delay(10000);
+  //wait until power down
+  //while(gprsPD_f!=1);
+  gprsPD_f=0;
+  Delay(2000);
+  GPIO_SetBits(GPRS_PORT2, GPRS_START_PIN);
+  Delay(2000);
+  GPIO_ResetBits(GPRS_PORT2, GPRS_START_PIN);
+  Delay(10000);
+  //wait until 'Call Ready'
+  //while(gprsCR_f!=1);
+  gprsCR_f=0;
+  gprsDrv_Init(); //12 seconds-long init routine
+}
+
 gprsStatus gprsGetStatus(void){
   return currStatus;
 }
