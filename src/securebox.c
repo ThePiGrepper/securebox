@@ -225,6 +225,7 @@ void HW_setup(void){
   wifiDrv_Setup();
   gprsDrv_Setup();
   gpsDrv_Setup();
+  SYSTEM_OFF();
   LOCK_ON();
   Delay(2500);
   LOCK_OFF();
@@ -232,6 +233,7 @@ void HW_setup(void){
 
 typedef enum { status_opened,status_locked,status_close } lockStatus;
 
+extern uint8_t gprsPD_f,gprsCR_f;
 uint8_t idOK = 0;
 uint8_t passOK = 0;
 void proto_main(void){
@@ -312,6 +314,33 @@ void proto_main(void){
           break;
         case gprs_e:
           gprsDrvIN_read(&streamPtr);
+          *strchr((char *)streamPtr,'\n')=0;
+          if(strstr(streamPtr,"ERROR")!=NULL || strstr(streamPtr,"60")!=NULL)
+          //if(strstr(streamPtr,"ERROR")!=NULL)
+          {
+            //if gprs channel error is detected, go to error mode and reboot.
+            SYSTEM_ON();
+            gprsReboot();
+            gpsDrvOUT_puts("gprs:error mode\n",0);
+            //Delay(400);
+            //SYSTEM_OFF();
+            //Delay(400);
+          }
+          else if(strstr(streamPtr,"200")!=NULL)
+          {
+            SYSTEM_OFF();
+          }
+          else if(strstr(streamPtr,"NORMAL POWER DOWN")!=NULL)
+          {
+            gprsPD_f=1;
+          }
+          else if(strstr(streamPtr,"Call Ready")!=NULL)
+          {
+            gprsCR_f=1;
+          }
+          gpsDrvOUT_write('+');
+          gpsDrvOUT_puts((char *)streamPtr,0);
+          gpsDrvOUT_write('\n');
           break;
         case gps_e:
           gpsDrvIN_read(&streamPtr);

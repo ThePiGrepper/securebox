@@ -200,6 +200,7 @@ void GPRS_IRQHandler(void)
   if(USART_GetITStatus(GPRS_MODULE, GPRS_RX_IT))
   {
     uint8_t rxdata = (uint8_t) USART_ReceiveData(GPRS_MODULE);
+    gprsParse(rxdata);
     if(gprsPipe.enabled == 1)
     {
       gprsPipe.sent = 1;
